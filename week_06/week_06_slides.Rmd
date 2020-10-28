@@ -275,3 +275,7 @@ class: inverse, center, middle
 ## References
 
 Harrison, E. & Pius, R. (2020). *R for Health Data Science*. Retrieved from https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html
+
+https://github.com/allisonhorst/stats-illustrations/blob/master/rstats-artwork/ggplot2_exploratory.png
+
+https://vita.had.co.nz/papers/layered-grammar.html
