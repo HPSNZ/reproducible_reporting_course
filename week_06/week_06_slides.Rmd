@@ -16,6 +16,10 @@ output:
 
 options(htmltools.dir.version = FALSE)
 
+knitr::opts_chunk$set(
+  dpi = 300,
+  fig.retina = 3)
+
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
@@ -27,7 +31,8 @@ style_duo_accent(
   inverse_header_color = "#FFFFFF",
   header_font_google = google_font("Overpass"),
   code_font_google = google_font("Fira Code", "500"),
-  text_font_size = "1.2rem",
+  text_font_size = "1.1rem",
+  code_font_size = "0.5rem",
   link_color = "#fc530e"
 )
 
@@ -35,42 +40,238 @@ style_duo_accent(
 
 background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharingan_triple.svg)
 
-???
-
-Image credit: [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Sharingan_triple.svg)
-
 ---
-class: center, middle
+class: inverse, center, middle
 
-# xaringan
-
-### /ʃæ.'riŋ.ɡæn/
+## Add PATH to .Renviron file!!
 
 ---
 class: inverse, center, middle
 
-# Get Started
+# Making plots with {ggplot2}
+
+## The basics
 
 ---
 
-# Hello World
+## Import data...
 
-Install the **xaringan** package from [Github](https://github.com/yihui/xaringan):
+.pull-left[
+Last week, we learned how to import data from SQL into R, using code that looks something like what is shown on the right.
 
-```{r eval=FALSE, tidy=FALSE}
-devtools::install_github("yihui/xaringan")
+<br />
+<br />
+
+The imported data is stored in an object I've named `source_data` (highlighted).
+]
+
+.pull-right[
+```{r import_data_from_sql, cache = TRUE}
+
+# Load libraries ---------------------------------------------------------------
+
+library(RODBC)
+
+# Establish ODBC connection ----------------------------------------------------
+
+con <- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R -------------------------------------------------------------
+
+source_data <- sqlQuery( #<<
+  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_p2p_age]")
+
+# Close the ODBC connection ----------------------------------------------------
+
+odbcClose(con)
+
+```
+]
+
+---
+
+## Import data...then build a plot!
+
+.pull-left[
+With the `{ggplot2}` R package, we can make a basic plot with a few lines of code!
+
+```{r build_plot_first_example, fig.show = "hide"}
+
+# Load the library -------------------------------------------------------------
+
+# To install {ggplot2} for the first time or to update your installation,
+# run this line:
+# install.packages("ggplot2")
+
+library(ggplot2)
+
+# Build the plot ---------------------------------------------------------------
+
+p <- ggplot(
+  data = source_data, # Specify the data source
+  aes(x = age, y = p2p_intake)) # Specify variables for the x and y axes
+p <- p + geom_boxplot() # Create boxplots
+
+# Call the object to display the plot ------------------------------------------
+
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_first_example", fig.width = 6, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+class: inverse, center, middle
+
+# Data types in R
+
+---
+class: inverse, center, middle
+
+# Going further with tidy data
+
+---
+
+## Recap: Tidy data principles
+
+---
+
+## Tidy data and {ggplot2}
+
+`{ggplot2}` is a powerful and flexible R package used for building plots.
+
+--
+
+It is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
+
+--
+
+`{ggplot2}` works best with **tidy data** that is in **long format**.
+
+---
+
+## Remind me...what is tidy data?
+
+Data is tidy when:
+
+- Columns are variables,
+
+--
+
+- Rows are observations, and
+
+--
+
+- Every row is at a consistent level of observation.
+
+---
+
+## What is long data?
+
+Data is long when factor levels are stored within a column, and observation values are stored in a separate column [(Harrison & Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
+
+---
+
+## Example of long data
+
+.pull-left[
+```{r long_format_example, echo = FALSE, message = FALSE}
+
+library(palmerpenguins)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+penguins %>%
+  select(species, sex, body_mass_g) %>%
+  kable() %>%
+  scroll_box(width = "400px", height = "450px")
+
+```
+]
+
+.pull-right[
+The example on the left uses data from the `{palmerpenguins}` R package.
+
+There are two factor variables ("species" and "sex"), each stored as columns.
+
+Observation values for body mass are stored in the variable "body_mass_g". Each row corresponds to one penguin.
+
+*****
+
+*Can you identify the factor levels within "species"? Hint: There are 3 levels.*
+
+]
+
+---
+
+## What is wide data?
+
+Data is wide when some or all of the columns are levels of a factor [(Harrison & Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
+
+Wide data tends to be easier for humans to read. For example: You might wrangle data into wide format when you want to display it in a table. We'll get to that next week!
+
+---
+
+## Example of wide data
+
+In the example below, data from the `{palmerpenguins}` package has been transposed from long to wide format. The factor variable is "species" and the levels within that factor are "Adelie", "Chinstrap", and "Gentoo". The values are the mean body mass in grams for males and females of each species.
+
+```{r wide_format_example, echo = FALSE}
+
+library(tidyr)
+
+penguins %>%
+  select(species, sex, body_mass_g) %>%
+  filter(!is.na(sex)) %>%
+  group_by(sex, species) %>%
+  summarise(
+    body_mass_g_mean = round(mean(body_mass_g), 0),
+    .groups = "drop") %>%
+  pivot_wider(
+    id_cols = "sex",
+    names_from = "species",
+    values_from = "body_mass_g_mean") %>%
+  kable()
+
 ```
 
---
+---
+class: center, middle
 
-You are recommended to use the [RStudio IDE](https://www.rstudio.com/products/rstudio/), but you do not have to.
+# Activity 1: Understanding tidy data
 
-- Create a new R Markdown document from the menu `File -> New File -> R Markdown -> From Template -> Ninja Presentation`;<sup>1</sup>
+---
+class: inverse, center, middle
 
---
+# Layered grammar of graphics
 
-- Click the `Knit` button to compile it;
+---
+class: inverse, center, middle
 
---
+# Making plots with {ggplot2}
 
-- or use the [RStudio Addin](https://rstudio.github.io/rstudioaddins/)<sup>2</sup> "Infinite Moon Reader" to live preview the slides (every time you update and save the Rmd document, the slides will be automatically reloaded in RStudio Viewer.
+## Diving deeper
+
+---
+class: inverse, center, middle
+
+# Course project
+
+## Design your own plot!
+
+---
+
+## References
+
+Harrison, E. & Pius, R. (2020). *R for Health Data Science*. Retrieved from https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html
