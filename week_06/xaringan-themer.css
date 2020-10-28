@@ -34,8 +34,8 @@
   --code-font-family: 'Fira Code';
   --code-font-is-google: 1;
   --base-font-size: 20px;
-  --text-font-size: 1.2rem;
-  --code-font-size: 0.9rem;
+  --text-font-size: 1.1rem;
+  --code-font-size: 0.5rem;
   --code-inline-font-size: 1em;
   --header-h1-font-size: 2.75rem;
   --header-h2-font-size: 2.25rem;
@@ -46,7 +46,7 @@
   --header-color: #50b4c8;
   --background-color: #FFFFFF;
   --link-color: #fc530e;
-  --text-bold-color: #50b4c8;
+  --text-bold-color: #215e6b;
   --code-highlight-color: rgba(255,255,0,0.5);
   --inverse-text-color: #FFFFFF;
   --inverse-background-color: #215e6b;
@@ -77,7 +77,7 @@ h1, h2, h3 {
 }
 .remark-slide-content {
   background-color: var(--background-color);
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   padding: 16px 64px 16px 64px;
   width: 100%;
   height: 100%;
