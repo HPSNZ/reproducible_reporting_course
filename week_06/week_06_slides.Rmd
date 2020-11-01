@@ -43,14 +43,88 @@ background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharin
 ---
 class: inverse, center, middle
 
-## Add PATH to .Renviron file!!
+# Making plots with {ggplot2}
+
+---
+
+## A minimal example
+
+.pull-left[
+With the `{ggplot2}` R package, we can make a basic plot with a few lines of code!
+
+```{r ggplot2_basic_example, fig.show = "hide"}
+
+# Load the library -------------------------------------------------------------
+
+# To install {ggplot2} for the first time or to update your installation,
+# run this line:
+# install.packages("ggplot2")
+
+library(ggplot2)
+
+# Build the plot ---------------------------------------------------------------
+
+# Note: We're using the "ToothGrowth" data set, one of many data sets that
+# are included when you install base R. As a built-in data set, it is already
+# ready to be used in an R session - no need to explicitly import it!
+
+p <- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len, fill = supp))
+p <- p + geom_bar(stat = "identity")
+
+# Display the plot by calling the object "p"
+p
+
+```
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+background-image: url()
+
+## Introduction to {ggplot2}
+
+.pull-right[
+`{ggplot2}` is a powerful, flexible, and widely used R package for making plots:
+
+--
+
+- It's **powerful** because it allows you to make changes to almost anything that comprises a data plot. If you can imagine it, there will likely be a way to make it with `{ggplot2}`.
+
+--
+
+- It's **flexible** because it covers a lot of common plot types. It's also been designed for *extensibility*, so other developers have created extension packages to supplement the plotting capabilities of `{ggplot2}`.
+
+--
+
+- Because it is **widely used**, there are tons of helpful resources online, including books, tutorials, video walkthroughs, and presentations. It is also a popular topic for R workshops, if you want to engage with an in-person / guided learning experience.
+]
+
+---
+
+## Layered grammar of graphics
 
 ---
 class: inverse, center, middle
 
-# Making plots with {ggplot2}
+# Activity 1: Getting started
 
-## The basics
+## Building plots with {ggplot2}
+
+---
+
+---
+class: inverse, center, middle
+
+# Activity 2: Going further
+
+## Plotting data from the SQL Learning datamart
 
 ---
 
@@ -96,17 +170,7 @@ odbcClose(con)
 ## Import data...then build a plot!
 
 .pull-left[
-With the `{ggplot2}` R package, we can make a basic plot with a few lines of code!
-
 ```{r build_plot_first_example, fig.show = "hide"}
-
-# Load the library -------------------------------------------------------------
-
-# To install {ggplot2} for the first time or to update your installation,
-# run this line:
-# install.packages("ggplot2")
-
-library(ggplot2)
 
 # Build the plot ---------------------------------------------------------------
 
@@ -247,21 +311,11 @@ penguins %>%
 ```
 
 ---
-class: center, middle
-
-# Activity 1: Understanding tidy data
-
----
 class: inverse, center, middle
 
-# Layered grammar of graphics
+# Activity 3: Getting fancy
 
----
-class: inverse, center, middle
-
-# Making plots with {ggplot2}
-
-## Diving deeper
+## Wrangling data and customising plots
 
 ---
 class: inverse, center, middle
