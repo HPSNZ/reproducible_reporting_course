@@ -32,48 +32,38 @@ style_duo_accent(
   header_font_google = google_font("Overpass"),
   code_font_google = google_font("Fira Code", "500"),
   text_font_size = "1.1rem",
-  code_font_size = "0.5rem",
+  code_font_size = "0.8rem",
   link_color = "#fc530e"
 )
 
 ```
-
-background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharingan_triple.svg)
-
----
-class: inverse, center, middle
-
-# Making plots with {ggplot2}
-
----
-
-## A minimal example
 
 .pull-left[
 With the `{ggplot2}` R package, we can make a basic plot with a few lines of code!
 
 ```{r ggplot2_basic_example, fig.show = "hide"}
 
-# Load the library -------------------------------------------------------------
+# Load the library
 
-# To install {ggplot2} for the first time or to update your installation,
-# run this line:
+# To install {ggplot2} for the first time,
+# or to update your installation, run this line:
 # install.packages("ggplot2")
 
 library(ggplot2)
 
-# Build the plot ---------------------------------------------------------------
+# Build a plot
 
-# Note: We're using the "ToothGrowth" data set, one of many data sets that
-# are included when you install base R. As a built-in data set, it is already
-# ready to be used in an R session - no need to explicitly import it!
+# Note: The "ToothGrowth" data set is one of
+# many data sets that are included with base R.
+# That means you don't have to import it!
 
 p <- ggplot(
   data = ToothGrowth,
-  aes(x = supp, y = len, fill = supp))
+  aes(x = supp, y = len))
 p <- p + geom_bar(stat = "identity")
 
 # Display the plot by calling the object "p"
+
 p
 
 ```
@@ -86,45 +76,641 @@ p
 ]
 
 ---
-background-image: url()
+background-image: url('images/ggplot2_masterpiece_bg.png')
+background-position: center
+background-size: contain
 
 ## Introduction to {ggplot2}
 
+.pull-left[
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<small>Image credit: [Allison Horst](https://github.com/allisonhorst/stats-illustrations)</small>
+]
+
 .pull-right[
-`{ggplot2}` is a powerful, flexible, and widely used R package for making plots:
+`{ggplot2}` is a powerful, flexible, and widely used R package for making plots.
 
---
+<br />
 
-- It's **powerful** because it allows you to make changes to almost anything that comprises a data plot. If you can imagine it, there will likely be a way to make it with `{ggplot2}`.
+What makes it so useful is that it is based on a **layered grammar of graphics**, "a coherent system for describing and building graphs" [(Grolemund & Wickham, 2017)](https://r4ds.had.co.nz/data-visualisation.html#introduction-1).
 
---
+<br />
 
-- It's **flexible** because it covers a lot of common plot types. It's also been designed for *extensibility*, so other developers have created extension packages to supplement the plotting capabilities of `{ggplot2}`.
-
---
-
-- Because it is **widely used**, there are tons of helpful resources online, including books, tutorials, video walkthroughs, and presentations. It is also a popular topic for R workshops, if you want to engage with an in-person / guided learning experience.
+The grammar of graphics defines a logic for what makes up a plot and how data is mapped to aesthetic features.
 ]
 
 ---
 
 ## Layered grammar of graphics
 
+As described by [Wickham (2010)](https://vita.had.co.nz/papers/layered-grammar.html), take a set of graphical elements...
+
+<center><img src="images/lgog_fig1.png"></center>
+
+---
+
+## Layered grammar of graphics
+
+...then layer the elements on top of one another to produce a plot.
+
+<center><img src="images/lgog_fig2.png"></center>
+
+---
+background-image: url('images/glen-carrie-J-PYjAqd2HU-unsplash_bg.jpg')
+background-position: center
+background-size: contain    
+
+## An analogy: Painting and {ggplot2}
+
+Imagine a simplified process for painting:
+
+--
+
+- You have something to paint on (e.g., a canvas),
+
+--
+
+- You have a rough idea of what you want the finished piece to look like, and
+
+--
+
+- You paint in layers from background to foreground.
+
+<br />
+
+--
+
+When building plots with `{ggplot2}`:
+
+- Your "canvas" is the plotting area and coordinate system,
+
+--
+
+- You have a type of plot in mind (e.g., a bar plot, one colour per group), and
+
+--
+
+- You write code for each plot layer in order, from background to foreground.
+
+<small>Image credit: [Glen Carrie](https://unsplash.com/photos/J-PYjAqd2HU)</small>
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+The first plot shown in this slidedeck is reproduced on the right.
+
+Now let's look at the code used to produce this plot!
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+```{r eval = FALSE}
+
+p <- ggplot( #<<
+  data = ToothGrowth,
+  aes(x = supp, y = len))
+p <- p + geom_bar(stat = "identity")
+
+```
+]
+
+.pull-right[
+We create an object called `p` to store information about the plot we are building.
+
+We use the `ggplot()` function to create a "canvas" for our plot - the plotting area and coordinate system.
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+```{r eval = FALSE}
+
+p <- ggplot(
+  data = ToothGrowth, #<<
+  aes(x = supp, y = len))
+p <- p + geom_bar(stat = "identity")
+
+```
+]
+
+.pull-right[
+Inside the `ggplot()` function, `data = ToothGrowth` specifies the data set to use for the plot.
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+```{r eval = FALSE}
+
+p <- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len)) #<<
+p <- p + geom_bar(stat = "identity")
+
+```
+]
+
+.pull-right[
+Here we have the `aes()` function nested inside the `ggplot()` function; `aes()` is short for "aesthetics".
+
+In the `aes()` function, we specify what variables we are going to plot on the x axis (`x = supp`, a grouping variable) and on the y axis (`y = len`, a numeric variable).
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+```{r eval = FALSE}
+
+p <- ggplot( #<<
+  data = ToothGrowth, #<<
+  aes(x = supp, y = len)) #<<
+p <- p + geom_bar(stat = "identity")
+
+```
+]
+
+.pull-right[
+With the first 3 lines of code, we have defined all the fundamental information needed to generate any plot:
+
+- We have created the plotting area (using the `ggplot()` function),
+- We have identified the data source (using the `data` argument), and
+- We have specified which variables to plot on the x and y axes (using the `x` and `y` arguments).
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+```{r eval = FALSE}
+
+p <- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len))
+p <- p + geom_bar(stat = "identity") #<<
+
+```
+]
+
+.pull-right[
+On a new line, we update the object `p` to add a new layer to the plot.
+
+In `{ggplot2}` code, `p <- p +` means *"assign to the object `p` the existing value of `p` plus a new layer of plotting information"*.
+
+In this case, we specify a new layer using the `geom_bar()` function. `geom` is short for geometries - i.e., shapes!
+
+`geom_bar()` is used to create bar plots. The `stat = "identity"` argument indicates that we want to plot summed values.
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+When you're ready to see what your plot looks like, call the object you've created to store the plotting information:
+
+```{r eval = FALSE}
+
+p
+
+```
+
+*Et voilà!*
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+
+## Okay, I know what you're thinking...
+
+.pull-left[
+This plot isn't very visually appealing. Yet.
+
+<br />
+
+Let's modify the code we've used to build this plot to adjust how it looks.
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
 ---
 class: inverse, center, middle
 
-# Activity 1: Getting started
+# But first...
 
-## Building plots with {ggplot2}
+## A short description of the ToothGrowth data set
 
 ---
+
+## ToothGrowth data set
+
+In your R console, you can check details about the built-in `ToothGrowth` data set by typing:
+
+```{r eval = FALSE}
+
+help(ToothGrowth)
+
+```
+
+--
+
+> "The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg / day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC)."
+
+--
+
+The data set includes 60 observations and 3 variables:
+
+- `len`: Tooth length.
+- `supp`: Supplement type (VC or OJ).
+- `dose`: Dose of vitamin C in mg / day (either 0.5, 1, or 2 mg / day).
+
+---
+
+## ToothGrowth data set
+
+.pull-left[
+Here's a scrollable table you can use to inspect the `ToothGrowth` data set.
+
+```{r echo = FALSE}
+
+library(kableExtra)
+
+ToothGrowth %>%
+  kbl() %>%
+  scroll_box(width = "300px", height = "350px")
+
+```
+]
+
+--
+
+.pull-right[
+Alternatively, you could type the following into your R console to generate an interactive table viewer inside your R session:
+
+```{r eval = FALSE}
+
+View(ToothGrowth)
+
+```
+]
 
 ---
 class: inverse, center, middle
 
-# Activity 2: Going further
+# Modifying our starter plot
 
-## Plotting data from the SQL Learning datamart
+---
+
+## 
+
+.pull-left[
+How might we improve this plot using the `ToothGrowth` data set?
+
+```{r ref.label = "ggplot2_basic_example", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+--
+
+.pull-right[
+Some suggestions:
+
+1. Fill the bars with different colours, to visually distinguish between supplement types.
+
+2. Write better x and y axis labels.
+
+3. Add a plot title.
+]
+
+---
+
+## Fill the bars with different colours
+
+.pull-left[
+In the code below, we've added the argument `fill = supp` inside the `aes()` function:
+
+```{r ggplot2_basic_example_mod1a, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len, fill = supp)) #<<
+p <- p + geom_bar(stat = "identity")
+
+# Display the plot
+p
+
+```
+
+This means: fill geometric shapes based on their values within the `supp` variable (either `"OJ"` or `"VC"`).
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example_mod1a", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+<small>Note that, by default, `{ggplot2}` displays a legend to define how colours are mapped to data values.</small>
+
+---
+
+## Fill the bars with different colours
+
+.pull-left[
+To remove the legend, we add a layer to modify the plot's theme elements.
+
+```{r ggplot2_basic_example_mod1b, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len, fill = supp))
+p <- p + geom_bar(stat = "identity")
+p <- p + theme( #<<
+  legend.position = "none") #<<
+
+# Display the plot
+p
+
+```
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example_mod1b", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+
+## Write better y and x axis labels
+
+.pull-left[
+Use the `labs()` function, specifying the `x` and `y` arguments to assign labels for those axes.
+
+```{r ggplot2_basic_example_mod2, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len, fill = supp))
+p <- p + geom_bar(stat = "identity")
+p <- p + labs( #<<
+  x = "Supplement type", #<<
+  y = "Sum of tooth length growth") #<<
+p <- p + theme(
+  legend.position = "none")
+
+# Display the plot
+p
+
+```
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example_mod2", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+<small>Note that I have added the `labs()` layer before the `theme()` layer. A common practice is to specify plot theme elements as the last step in the "background-to-foreground" approach of building `{ggplot2}` plots.</small>
+
+---
+
+## Add a plot title
+
+.pull-left[
+Inside the `labs()` layer, specify the `title` argument to add a plot title.
+
+```{r ggplot2_basic_example_mod3, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len, fill = supp))
+p <- p + geom_bar(stat = "identity")
+p <- p + labs(
+  title = "Guinea pigs on juice", #<<
+  x = "Supplement type",
+  y = "Sum of tooth length growth")
+p <- p + theme(
+  legend.position = "none")
+
+# Display the plot
+p
+
+```
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example_mod3", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+
+## Compare the pair
+
+.pull-left[
+```{r ref.label = "ggplot2_basic_example", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+.pull-right[
+```{r ref.label = "ggplot2_basic_example_mod3", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+class: inverse, center, middle
+
+# Activity 1
+
+## Build your own plot with {ggplot2}
+
+---
+
+## Build a plot using a built-in data set
+
+Task: Use the `mtcars` built-in data set to make a plot.
+
+--
+
+<br />
+
+Part 1. Familiarise yourself with `mtcars`:
+
+- Check the data set description. In your R console, run `help(mtcars)`.
+- Visually inspect the data set. In your R console, run `View(mtcars)`.
+
+--
+
+<br />
+
+Part 2. Build one of the following plots using the `{ggplot2}` package:
+
+- A scatterplot of quarter mile time (`qsec`) vs. miles per gallon (`mpg`).
+- A bar plot, counting the number of cars with 4, 6, or 8 cylinders (`cyl`).
+- A box plot of car weights (`wt`) by engine shape (`vs`).
+- Make up your own!
+
+---
+
+## Helpful resources
+
+Wickham, H., Navarro, D., & Pedersen, T.L. (n.d.). [*ggplot2: Elegant Graphics for Data Analysis*](https://ggplot2-book.org/)
+
+--
+
+<br />
+
+Chang, W. (2020). [*R Graphics Cookbook*](https://r-graphics.org/) (2nd ed.). From Chapter 3 onwards, `{ggplot2}` is used to build plots.
+
+--
+
+<br />
+
+Google search for resources and forum posts related to what you're trying to achieve. I find it helpful to start my search string with *"ggplot2 how to"* `r emo::ji("balloon")`
+
+---
+
+## Minimal worked examples
+
+I encourage you to have a go at building your plot first, before peeking at the worked examples!
+
+<center>
+```{r, out.width = "60%", echo = FALSE}
+
+knitr::include_graphics("images/joakim-honkasalo-GZa4QFmv0Zg-unsplash.jpg")
+
+```
+<br />
+<br />
+<small>Image credit: <a href="https://unsplash.com/photos/GZa4QFmv0Zg" target="_blank">Joakim Honkasalo</a></small>
+</center>
+
+---
+
+## Example: Quarter mile time vs. miles per gallon
+
+.pull-left[
+```{r mtcars_example1, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = mtcars,
+  aes(x = qsec, y = mpg))
+p <- p + geom_point()
+
+# Display the plot
+p
+
+```
+]
+
+.pull-right[
+```{r ref.label = "mtcars_example1", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+
+## Example: Number of cars with 4, 6, or 8 cylinders
+
+.pull-left[
+```{r mtcars_example2, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = mtcars,
+  aes(x = cyl))
+p <- p + geom_bar(stat = "count")
+
+# Display the plot
+p
+
+```
+]
+
+.pull-right[
+```{r ref.label = "mtcars_example2", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+
+## Example: Car weights by engine shape
+
+.pull-left[
+```{r mtcars_example3, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = mtcars,
+  aes(x = vs, y = wt, group = vs))
+p <- p + geom_boxplot()
+
+# Display the plot
+p
+
+```
+]
+
+.pull-right[
+```{r ref.label = "mtcars_example3", fig.width = 4, fig.height = 3, echo = FALSE}
+
+```
+]
+
+---
+class: inverse, center, middle
+
+# Plotting data from the SQL Learning datamart
 
 ---
 
@@ -212,11 +798,7 @@ class: inverse, center, middle
 
 ## Tidy data and {ggplot2}
 
-`{ggplot2}` is a powerful and flexible R package used for building plots.
-
---
-
-It is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
+`{ggplot2}` is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
 
 --
 
@@ -328,8 +910,8 @@ class: inverse, center, middle
 
 ## References
 
+Grolemund, G. & Wickham, H. (2017). *R for Data Science*. Retrieved from https://r4ds.had.co.nz/
+
 Harrison, E. & Pius, R. (2020). *R for Health Data Science*. Retrieved from https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html
 
-https://github.com/allisonhorst/stats-illustrations/blob/master/rstats-artwork/ggplot2_exploratory.png
-
-https://vita.had.co.nz/papers/layered-grammar.html
+Wickham, H. (2010). A layered grammar of graphics. *Journal of Computational and Graphical Statistics*, *19*(1), 3–28. Retrieved from https://vita.had.co.nz/papers/layered-grammar.html
