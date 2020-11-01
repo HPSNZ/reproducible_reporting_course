@@ -21,42 +21,32 @@ class: center, middle, inverse, title-slide
 
 
 
-background-image: url(https://upload.wikimedia.org/wikipedia/commons/b/be/Sharingan_triple.svg)
-
----
-class: inverse, center, middle
-
-# Making plots with {ggplot2}
-
----
-
-## A minimal example
-
 .pull-left[
 With the `{ggplot2}` R package, we can make a basic plot with a few lines of code!
 
 
 ```r
-# Load the library -------------------------------------------------------------
+# Load the library
 
-# To install {ggplot2} for the first time or to update your installation,
-# run this line:
+# To install {ggplot2} for the first time,
+# or to update your installation, run this line:
 # install.packages("ggplot2")
 
 library(ggplot2)
 
-# Build the plot ---------------------------------------------------------------
+# Build a plot
 
-# Note: We're using the "ToothGrowth" data set, one of many data sets that
-# are included when you install base R. As a built-in data set, it is already
-# ready to be used in an R session - no need to explicitly import it!
+# Note: The "ToothGrowth" data set is one of
+# many data sets that are included with base R.
+# That means you don't have to import it!
 
 p &lt;- ggplot(
   data = ToothGrowth,
-  aes(x = supp, y = len, fill = supp))
+  aes(x = supp, y = len))
 p &lt;- p + geom_bar(stat = "identity")
 
 # Display the plot by calling the object "p"
+
 p
 ```
 ]
@@ -66,45 +56,898 @@ p
 ]
 
 ---
-background-image: url()
+background-image: url('images/ggplot2_masterpiece_bg.png')
+background-position: center
+background-size: contain
 
 ## Introduction to {ggplot2}
 
+.pull-left[
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;small&gt;Image credit: [Allison Horst](https://github.com/allisonhorst/stats-illustrations)&lt;/small&gt;
+]
+
 .pull-right[
-`{ggplot2}` is a powerful, flexible, and widely used R package for making plots:
+`{ggplot2}` is a powerful, flexible, and widely used R package for making plots.
 
---
+&lt;br /&gt;
 
-- It's **powerful** because it allows you to make changes to almost anything that comprises a data plot. If you can imagine it, there will likely be a way to make it with `{ggplot2}`.
+What makes it so useful is that it is based on a **layered grammar of graphics**, "a coherent system for describing and building graphs" [(Grolemund &amp; Wickham, 2017)](https://r4ds.had.co.nz/data-visualisation.html#introduction-1).
 
---
+&lt;br /&gt;
 
-- It's **flexible** because it covers a lot of common plot types. It's also been designed for *extensibility*, so other developers have created extension packages to supplement the plotting capabilities of `{ggplot2}`.
-
---
-
-- Because it is **widely used**, there are tons of helpful resources online, including books, tutorials, video walkthroughs, and presentations. It is also a popular topic for R workshops, if you want to engage with an in-person / guided learning experience.
+The grammar of graphics defines a logic for what makes up a plot and how data is mapped to aesthetic features.
 ]
 
 ---
 
 ## Layered grammar of graphics
 
+As described by [Wickham (2010)](https://vita.had.co.nz/papers/layered-grammar.html), take a set of graphical elements...
+
+&lt;center&gt;&lt;img src="images/lgog_fig1.png"&gt;&lt;/center&gt;
+
+---
+
+## Layered grammar of graphics
+
+...then layer the elements on top of one another to produce a plot.
+
+&lt;center&gt;&lt;img src="images/lgog_fig2.png"&gt;&lt;/center&gt;
+
+---
+background-image: url('images/glen-carrie-J-PYjAqd2HU-unsplash_bg.jpg')
+background-position: center
+background-size: contain    
+
+## An analogy: Painting and {ggplot2}
+
+Imagine a simplified process for painting:
+
+--
+
+- You have something to paint on (e.g., a canvas),
+
+--
+
+- You have a rough idea of what you want the finished piece to look like, and
+
+--
+
+- You paint in layers from background to foreground.
+
+&lt;br /&gt;
+
+--
+
+When building plots with `{ggplot2}`:
+
+- Your "canvas" is the plotting area and coordinate system,
+
+--
+
+- You have a type of plot in mind (e.g., a bar plot, one colour per group), and
+
+--
+
+- You write code for each plot layer in order, from background to foreground.
+
+&lt;small&gt;Image credit: [Glen Carrie](https://unsplash.com/photos/J-PYjAqd2HU)&lt;/small&gt;
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+The first plot shown in this slidedeck is reproduced on the right.
+
+Now let's look at the code used to produce this plot!
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-2-1.png" width="1200" /&gt;
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+
+```r
+*p &lt;- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len))
+p &lt;- p + geom_bar(stat = "identity")
+```
+]
+
+.pull-right[
+We create an object called `p` to store information about the plot we are building.
+
+We use the `ggplot()` function to create a "canvas" for our plot - the plotting area and coordinate system.
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+
+```r
+p &lt;- ggplot(
+* data = ToothGrowth,
+  aes(x = supp, y = len))
+p &lt;- p + geom_bar(stat = "identity")
+```
+]
+
+.pull-right[
+Inside the `ggplot()` function, `data = ToothGrowth` specifies the data set to use for the plot.
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+
+```r
+p &lt;- ggplot(
+  data = ToothGrowth,
+* aes(x = supp, y = len))
+p &lt;- p + geom_bar(stat = "identity")
+```
+]
+
+.pull-right[
+Here we have the `aes()` function nested inside the `ggplot()` function; `aes()` is short for "aesthetics".
+
+In the `aes()` function, we specify what variables we are going to plot on the x axis (`x = supp`, a grouping variable) and on the y axis (`y = len`, a numeric variable).
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+
+```r
+*p &lt;- ggplot(
+* data = ToothGrowth,
+* aes(x = supp, y = len))
+p &lt;- p + geom_bar(stat = "identity")
+```
+]
+
+.pull-right[
+With the first 3 lines of code, we have defined all the fundamental information needed to generate any plot:
+
+- We have created the plotting area (using the `ggplot()` function),
+- We have identified the data source (using the `data` argument), and
+- We have specified which variables to plot on the x and y axes (using the `x` and `y` arguments).
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+
+```r
+p &lt;- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len))
+*p &lt;- p + geom_bar(stat = "identity")
+```
+]
+
+.pull-right[
+On a new line, we update the object `p` to add a new layer to the plot.
+
+In `{ggplot2}` code, `p &lt;- p +` means *"assign to the object `p` the existing value of `p` plus a new layer of plotting information"*.
+
+In this case, we specify a new layer using the `geom_bar()` function. `geom` is short for geometries - i.e., shapes!
+
+`geom_bar()` is used to create bar plots. The `stat = "identity"` argument indicates that we want to plot summed values.
+]
+
+---
+
+## Understanding {ggplot2} code
+
+.pull-left[
+When you're ready to see what your plot looks like, call the object you've created to store the plotting information:
+
+
+```r
+p
+```
+
+*Et voilà!*
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-9-1.png" width="1200" /&gt;
+]
+
+---
+
+## Okay, I know what you're thinking...
+
+.pull-left[
+This plot isn't very visually appealing. Yet.
+
+&lt;br /&gt;
+
+Let's modify the code we've used to build this plot to adjust how it looks.
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-10-1.png" width="1200" /&gt;
+]
+
 ---
 class: inverse, center, middle
 
-# Activity 1: Getting started
+# But first...
 
-## Building plots with {ggplot2}
+## A short description of the ToothGrowth data set
 
 ---
+
+## ToothGrowth data set
+
+In your R console, you can check details about the built-in `ToothGrowth` data set by typing:
+
+
+```r
+help(ToothGrowth)
+```
+
+--
+
+&gt; "The response is the length of odontoblasts (cells responsible for tooth growth) in 60 guinea pigs. Each animal received one of three dose levels of vitamin C (0.5, 1, and 2 mg / day) by one of two delivery methods, orange juice or ascorbic acid (a form of vitamin C and coded as VC)."
+
+--
+
+The data set includes 60 observations and 3 variables:
+
+- `len`: Tooth length.
+- `supp`: Supplement type (VC or OJ).
+- `dose`: Dose of vitamin C in mg / day (either 0.5, 1, or 2 mg / day).
+
+---
+
+## ToothGrowth data set
+
+.pull-left[
+Here's a scrollable table you can use to inspect the `ToothGrowth` data set.
+
+&lt;div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:350px; overflow-x: scroll; width:300px; "&gt;&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; len &lt;/th&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; supp &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; dose &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 22.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 33.9 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 25.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 32.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 21.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 29.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 21.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 8.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 25.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 25.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 21.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 27.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 25.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 22.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 24.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 24.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 30.9 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 27.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 29.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+]
+
+--
+
+.pull-right[
+Alternatively, you could type the following into your R console to generate an interactive table viewer inside your R session:
+
+
+```r
+View(ToothGrowth)
+```
+]
 
 ---
 class: inverse, center, middle
 
-# Activity 2: Going further
+# Modifying our starter plot
 
-## Plotting data from the SQL Learning datamart
+---
+
+## 
+
+.pull-left[
+How might we improve this plot using the `ToothGrowth` data set?
+
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-14-1.png" width="1200" /&gt;
+]
+
+--
+
+.pull-right[
+Some suggestions:
+
+1. Fill the bars with different colours, to visually distinguish between supplement types.
+
+2. Write better x and y axis labels.
+
+3. Add a plot title.
+]
+
+---
+
+## Fill the bars with different colours
+
+.pull-left[
+In the code below, we've added the argument `fill = supp` inside the `aes()` function:
+
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = ToothGrowth,
+* aes(x = supp, y = len, fill = supp))
+p &lt;- p + geom_bar(stat = "identity")
+
+# Display the plot
+p
+```
+
+This means: fill geometric shapes based on their values within the `supp` variable (either `"OJ"` or `"VC"`).
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-15-1.png" width="1200" /&gt;
+]
+
+&lt;small&gt;Note that, by default, `{ggplot2}` displays a legend to define how colours are mapped to data values.&lt;/small&gt;
+
+---
+
+## Fill the bars with different colours
+
+.pull-left[
+To remove the legend, we add a layer to modify the plot's theme elements.
+
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len, fill = supp))
+p &lt;- p + geom_bar(stat = "identity")
+*p &lt;- p + theme(
+* legend.position = "none")
+
+# Display the plot
+p
+```
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-16-1.png" width="1200" /&gt;
+]
+
+---
+
+## Write better y and x axis labels
+
+.pull-left[
+Use the `labs()` function, specifying the `x` and `y` arguments to assign labels for those axes.
+
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len, fill = supp))
+p &lt;- p + geom_bar(stat = "identity")
+*p &lt;- p + labs(
+* x = "Supplement type",
+* y = "Sum of tooth length growth")
+p &lt;- p + theme(
+  legend.position = "none")
+
+# Display the plot
+p
+```
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-17-1.png" width="1200" /&gt;
+]
+
+&lt;small&gt;Note that I have added the `labs()` layer before the `theme()` layer. A common practice is to specify plot theme elements as the last step in the "background-to-foreground" approach of building `{ggplot2}` plots.&lt;/small&gt;
+
+---
+
+## Add a plot title
+
+.pull-left[
+Inside the `labs()` layer, specify the `title` argument to add a plot title.
+
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = ToothGrowth,
+  aes(x = supp, y = len, fill = supp))
+p &lt;- p + geom_bar(stat = "identity")
+p &lt;- p + labs(
+* title = "Guinea pigs on juice",
+  x = "Supplement type",
+  y = "Sum of tooth length growth")
+p &lt;- p + theme(
+  legend.position = "none")
+
+# Display the plot
+p
+```
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-18-1.png" width="1200" /&gt;
+]
+
+---
+
+## Compare the pair
+
+.pull-left[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-19-1.png" width="1200" /&gt;
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-20-1.png" width="1200" /&gt;
+]
+
+---
+class: inverse, center, middle
+
+# Activity 1
+
+## Build your own plot with {ggplot2}
+
+---
+
+## Build a plot using a built-in data set
+
+Task: Use the `mtcars` built-in data set to make a plot.
+
+--
+
+&lt;br /&gt;
+
+Part 1. Familiarise yourself with `mtcars`:
+
+- Check the data set description. In your R console, run `help(mtcars)`.
+- Visually inspect the data set. In your R console, run `View(mtcars)`.
+
+--
+
+&lt;br /&gt;
+
+Part 2. Build one of the following plots using the `{ggplot2}` package:
+
+- A scatterplot of quarter mile time (`qsec`) vs. miles per gallon (`mpg`).
+- A bar plot, counting the number of cars with 4, 6, or 8 cylinders (`cyl`).
+- A box plot of car weights (`wt`) by engine shape (`vs`).
+- Make up your own!
+
+---
+
+## Helpful resources
+
+Wickham, H., Navarro, D., &amp; Pedersen, T.L. (n.d.). [*ggplot2: Elegant Graphics for Data Analysis*](https://ggplot2-book.org/)
+
+--
+
+&lt;br /&gt;
+
+Chang, W. (2020). [*R Graphics Cookbook*](https://r-graphics.org/) (2nd ed.). From Chapter 3 onwards, `{ggplot2}` is used to build plots.
+
+--
+
+&lt;br /&gt;
+
+Google search for resources and forum posts related to what you're trying to achieve. I find it helpful to start my search string with *"ggplot2 how to"* 🎈
+
+---
+
+## Minimal worked examples
+
+I encourage you to have a go at building your plot first, before peeking at the worked examples!
+
+&lt;center&gt;
+&lt;img src="images/joakim-honkasalo-GZa4QFmv0Zg-unsplash.jpg" width="60%" /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;small&gt;Image credit: &lt;a href="https://unsplash.com/photos/GZa4QFmv0Zg" target="_blank"&gt;Joakim Honkasalo&lt;/a&gt;&lt;/small&gt;
+&lt;/center&gt;
+
+---
+
+## Example: Quarter mile time vs. miles per gallon
+
+.pull-left[
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = mtcars,
+  aes(x = qsec, y = mpg))
+p &lt;- p + geom_point()
+
+# Display the plot
+p
+```
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-22-1.png" width="1200" /&gt;
+]
+
+---
+
+## Example: Number of cars with 4, 6, or 8 cylinders
+
+.pull-left[
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = mtcars,
+  aes(x = cyl))
+p &lt;- p + geom_bar(stat = "count")
+
+# Display the plot
+p
+```
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-23-1.png" width="1200" /&gt;
+]
+
+---
+
+## Example: Car weights by engine shape
+
+.pull-left[
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = mtcars,
+  aes(x = vs, y = wt, group = vs))
+p &lt;- p + geom_boxplot()
+
+# Display the plot
+p
+```
+]
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-24-1.png" width="1200" /&gt;
+]
+
+---
+class: inverse, center, middle
+
+# Plotting data from the SQL Learning datamart
 
 ---
 
@@ -167,7 +1010,7 @@ p
 --
 
 .pull-right[
-&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-2-1.png" width="1800" /&gt;
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-25-1.png" width="1800" /&gt;
 ]
 
 ---
@@ -188,11 +1031,7 @@ class: inverse, center, middle
 
 ## Tidy data and {ggplot2}
 
-`{ggplot2}` is a powerful and flexible R package used for building plots.
-
---
-
-It is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
+`{ggplot2}` is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
 
 --
 
@@ -225,12 +1064,6 @@ Data is long when factor levels are stored within a column, and observation valu
 ## Example of long data
 
 .pull-left[
-
-```
-## Warning: namespace 'highr' is not available and has been replaced
-## by .GlobalEnv when processing object '&lt;unknown&gt;'
-```
-
 &lt;div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:450px; overflow-x: scroll; width:400px; "&gt;&lt;table&gt;
  &lt;thead&gt;
   &lt;tr&gt;
@@ -2034,11 +2867,11 @@ class: inverse, center, middle
 
 ## References
 
+Grolemund, G. &amp; Wickham, H. (2017). *R for Data Science*. Retrieved from https://r4ds.had.co.nz/
+
 Harrison, E. &amp; Pius, R. (2020). *R for Health Data Science*. Retrieved from https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html
 
-https://github.com/allisonhorst/stats-illustrations/blob/master/rstats-artwork/ggplot2_exploratory.png
-
-https://vita.had.co.nz/papers/layered-grammar.html
+Wickham, H. (2010). A layered grammar of graphics. *Journal of Computational and Graphical Statistics*, *19*(1), 3–28. Retrieved from https://vita.had.co.nz/papers/layered-grammar.html
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
