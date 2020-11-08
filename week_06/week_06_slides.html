@@ -21,6 +21,26 @@ class: center, middle, inverse, title-slide
 
 
 
+## Before we get started
+
+If you'd like to code-along with the examples included in this slidedeck, make sure you have added this line to the .Renviron file in the local folder for your course project repo:
+
+&lt;br /&gt;
+
+`PATH="${RTOOLS40_HOME}\usr\bin;${PATH}"`
+
+&lt;br /&gt;
+
+The .Renviron file defines project-specific environment variables, so this line points R and R Studio to where you have Rtools40 installed on your local machine.
+
+---
+class: inverse, center, middle
+
+# Summertime, and the plotting is easy
+## (with R and {ggplot2})
+
+---
+
 .pull-left[
 With the `{ggplot2}` R package, we can make a basic plot with a few lines of code!
 
@@ -50,6 +70,8 @@ p &lt;- p + geom_bar(stat = "identity")
 p
 ```
 ]
+
+--
 
 .pull-right[
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-1-1.png" width="1200" /&gt;
@@ -334,8 +356,17 @@ The data set includes 60 observations and 3 variables:
 ## ToothGrowth data set
 
 .pull-left[
-Here's a scrollable table you can use to inspect the `ToothGrowth` data set.
+On the right is a scrollable table you can use to inspect the `ToothGrowth` data set.
 
+Alternatively, you could type the following into your R console to generate an interactive table viewer inside your R session:
+
+
+```r
+View(ToothGrowth)
+```
+]
+
+.pull-right[
 &lt;div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:350px; overflow-x: scroll; width:300px; "&gt;&lt;table&gt;
  &lt;thead&gt;
   &lt;tr&gt;
@@ -649,17 +680,6 @@ Here's a scrollable table you can use to inspect the `ToothGrowth` data set.
 &lt;/table&gt;&lt;/div&gt;
 ]
 
---
-
-.pull-right[
-Alternatively, you could type the following into your R console to generate an interactive table viewer inside your R session:
-
-
-```r
-View(ToothGrowth)
-```
-]
-
 ---
 class: inverse, center, middle
 
@@ -692,7 +712,7 @@ Some suggestions:
 ## Fill the bars with different colours
 
 .pull-left[
-In the code below, we've added the argument `fill = supp` inside the `aes()` function:
+In the code below, we've modified the `aes()` function to add the argument `fill = supp`.
 
 
 ```r
@@ -706,21 +726,25 @@ p &lt;- p + geom_bar(stat = "identity")
 p
 ```
 
-This means: fill geometric shapes based on their values within the `supp` variable (either `"OJ"` or `"VC"`).
+This means: fill geometric shapes based on values in the `supp` variable (either `"OJ"` or `"VC"`).
 ]
+
+--
 
 .pull-right[
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-15-1.png" width="1200" /&gt;
 ]
 
-&lt;small&gt;Note that, by default, `{ggplot2}` displays a legend to define how colours are mapped to data values.&lt;/small&gt;
+--
+
+&lt;small&gt;Note that `{ggplot2}` includes "useful defaults" to make plotting easier. In this case, the default colour palette has been invoked and a legend is also displayed by default.&lt;/small&gt;
 
 ---
 
 ## Fill the bars with different colours
 
 .pull-left[
-To remove the legend, we add a layer to modify the plot's theme elements.
+The legend duplicates info that is presented on the x axis. To remove the legend, we add a layer to modify the plot's theme elements using the `theme()` function and specifically, the `legend.position` argument.
 
 
 ```r
@@ -737,16 +761,22 @@ p
 ```
 ]
 
+--
+
 .pull-right[
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-16-1.png" width="1200" /&gt;
 ]
+
+--
+
+&lt;small&gt;Bonus: What happens if you specify `legend.position = "top"`? What about `legend.position = "left"`? Try these options out in your R session to check your programming intuition. 👍&lt;/small&gt;
 
 ---
 
 ## Write better y and x axis labels
 
 .pull-left[
-Use the `labs()` function, specifying the `x` and `y` arguments to assign labels for those axes.
+To specify x and y axis labels, we add a layer using the `labs()` function.
 
 
 ```r
@@ -766,11 +796,15 @@ p
 ```
 ]
 
+--
+
 .pull-right[
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-17-1.png" width="1200" /&gt;
 ]
 
-&lt;small&gt;Note that I have added the `labs()` layer before the `theme()` layer. A common practice is to specify plot theme elements as the last step in the "background-to-foreground" approach of building `{ggplot2}` plots.&lt;/small&gt;
+--
+
+&lt;small&gt;Notice that I have added the `labs()` layer before the `theme()` layer. A common practice is to specify plot theme elements as the last step in the "background-to-foreground" approach of building `{ggplot2}` plots.&lt;/small&gt;
 
 ---
 
@@ -798,6 +832,8 @@ p
 ```
 ]
 
+--
+
 .pull-right[
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-18-1.png" width="1200" /&gt;
 ]
@@ -807,10 +843,14 @@ p
 ## Compare the pair
 
 .pull-left[
+From this...
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-19-1.png" width="1200" /&gt;
 ]
 
+--
+
 .pull-right[
+To this!
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-20-1.png" width="1200" /&gt;
 ]
 
@@ -845,7 +885,7 @@ Part 2. Build one of the following plots using the `{ggplot2}` package:
 - A scatterplot of quarter mile time (`qsec`) vs. miles per gallon (`mpg`).
 - A bar plot, counting the number of cars with 4, 6, or 8 cylinders (`cyl`).
 - A box plot of car weights (`wt`) by engine shape (`vs`).
-- Make up your own!
+- Or make up your own!
 
 ---
 
@@ -869,7 +909,7 @@ Google search for resources and forum posts related to what you're trying to ach
 
 ## Minimal worked examples
 
-I encourage you to have a go at building your plot first, before peeking at the worked examples!
+Have a go at building your plot first before peeking at the worked examples on the next few slides!
 
 &lt;center&gt;
 &lt;img src="images/joakim-honkasalo-GZa4QFmv0Zg-unsplash.jpg" width="60%" /&gt;
@@ -956,32 +996,32 @@ class: inverse, center, middle
 .pull-left[
 Last week, we learned how to import data from SQL into R, using code that looks something like what is shown on the right.
 
-&lt;br /&gt;
-&lt;br /&gt;
+Here I connect to the SQL datamart using the `{RODBC}` package.
 
-The imported data is stored in an object I've named `source_data` (highlighted).
+Then, using the `sqlQuery()` function, I read data from the datamart and store it in an object that I've named `source_data` (highlighted).
 ]
 
 .pull-right[
 
 ```r
-# Load libraries ---------------------------------------------------------------
+# Load libraries
 
 library(RODBC)
 
-# Establish ODBC connection ----------------------------------------------------
+# Establish ODBC connection
 
 con &lt;- odbcConnect(
   "HPSNZ_Datamart",
   uid = Sys.getenv("datamart_user"),
   pwd = Sys.getenv("datamart_pwd"))
 
-# Read data into R -------------------------------------------------------------
+# Read data into R
 
 *source_data &lt;- sqlQuery(
-  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_p2p_age]")
+  con,
+  "SELECT * FROM [CME_HPSNZ].[report].[vw_p2p_age]")
 
-# Close the ODBC connection ----------------------------------------------------
+# Close the ODBC connection
 
 odbcClose(con)
 ```
@@ -994,15 +1034,13 @@ odbcClose(con)
 .pull-left[
 
 ```r
-# Build the plot ---------------------------------------------------------------
-
+# Build the plot
 p &lt;- ggplot(
   data = source_data, # Specify the data source
   aes(x = age, y = p2p_intake)) # Specify variables for the x and y axes
 p &lt;- p + geom_boxplot() # Create boxplots
 
-# Call the object to display the plot ------------------------------------------
-
+# Call the object to display the plot
 p
 ```
 ]
@@ -1012,6 +1050,14 @@ p
 .pull-right[
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-25-1.png" width="1800" /&gt;
 ]
+
+---
+
+## A closer look at report.vw_p2p_age
+
+---
+
+## Some plotting ideas
 
 ---
 class: inverse, center, middle
@@ -2862,6 +2908,28 @@ class: inverse, center, middle
 # Course project
 
 ## Design your own plot!
+
+---
+
+## Getting set up
+
+**If you've been using R while following these slides, now is a good time to clear your workspace and restart R.**
+
+Using Windows explorer, navigate to the local folder for your course project repo, then open the .Rproj file to open up a new session of RStudio from inside your project repo.
+
+Open the .Rmd file for your course project report.
+
+Create a new code chunk (the keyboard shortcut is CTRL + ALT + I).
+
+Give the code chunk and informative name related to the plot you will create.
+
+Write comments to plan out the plot you wan to create. Remember to start each line of your in-code comments with a # symbol.
+
+Your plotting plan could specify:
+
+- The variables you want on the x and y axes
+- The type of plot you want to create (e.g., bar plot, scatter plot, box plot, tree map)
+- The visual styling you want to apply to the plot (e.g., colours, axis and plot titles, labels, legends, text size)
 
 ---
 
