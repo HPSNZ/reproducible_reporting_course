@@ -38,6 +38,26 @@ style_duo_accent(
 
 ```
 
+## Before we get started
+
+If you'd like to code-along with the examples included in this slidedeck, make sure you have added this line to the .Renviron file in the local folder for your course project repo:
+
+<br />
+
+`PATH="${RTOOLS40_HOME}\usr\bin;${PATH}"`
+
+<br />
+
+The .Renviron file defines project-specific environment variables, so this line points R and R Studio to where you have Rtools40 installed on your local machine.
+
+---
+class: inverse, center, middle
+
+# Summertime, and the plotting is easy
+## (with R and {ggplot2})
+
+---
+
 .pull-left[
 With the `{ggplot2}` R package, we can make a basic plot with a few lines of code!
 
@@ -68,6 +88,8 @@ p
 
 ```
 ]
+
+--
 
 .pull-right[
 ```{r ref.label = "ggplot2_basic_example", fig.width = 4, fig.height = 3, echo = FALSE}
@@ -367,8 +389,18 @@ The data set includes 60 observations and 3 variables:
 ## ToothGrowth data set
 
 .pull-left[
-Here's a scrollable table you can use to inspect the `ToothGrowth` data set.
+On the right is a scrollable table you can use to inspect the `ToothGrowth` data set.
 
+Alternatively, you could type the following into your R console to generate an interactive table viewer inside your R session:
+
+```{r eval = FALSE}
+
+View(ToothGrowth)
+
+```
+]
+
+.pull-right[
 ```{r echo = FALSE}
 
 library(kableExtra)
@@ -376,18 +408,6 @@ library(kableExtra)
 ToothGrowth %>%
   kbl() %>%
   scroll_box(width = "300px", height = "350px")
-
-```
-]
-
---
-
-.pull-right[
-Alternatively, you could type the following into your R console to generate an interactive table viewer inside your R session:
-
-```{r eval = FALSE}
-
-View(ToothGrowth)
 
 ```
 ]
@@ -426,7 +446,7 @@ Some suggestions:
 ## Fill the bars with different colours
 
 .pull-left[
-In the code below, we've added the argument `fill = supp` inside the `aes()` function:
+In the code below, we've modified the `aes()` function to add the argument `fill = supp`.
 
 ```{r ggplot2_basic_example_mod1a, fig.show = "hide"}
 
@@ -441,8 +461,10 @@ p
 
 ```
 
-This means: fill geometric shapes based on their values within the `supp` variable (either `"OJ"` or `"VC"`).
+This means: fill geometric shapes based on values in the `supp` variable (either `"OJ"` or `"VC"`).
 ]
+
+--
 
 .pull-right[
 ```{r ref.label = "ggplot2_basic_example_mod1a", fig.width = 4, fig.height = 3, echo = FALSE}
@@ -450,14 +472,16 @@ This means: fill geometric shapes based on their values within the `supp` variab
 ```
 ]
 
-<small>Note that, by default, `{ggplot2}` displays a legend to define how colours are mapped to data values.</small>
+--
+
+<small>Note that `{ggplot2}` includes "useful defaults" to make plotting easier. In this case, the default colour palette has been invoked and a legend is also displayed by default.</small>
 
 ---
 
 ## Fill the bars with different colours
 
 .pull-left[
-To remove the legend, we add a layer to modify the plot's theme elements.
+The legend duplicates info that is presented on the x axis. To remove the legend, we add a layer to modify the plot's theme elements using the `theme()` function and specifically, the `legend.position` argument.
 
 ```{r ggplot2_basic_example_mod1b, fig.show = "hide"}
 
@@ -475,18 +499,24 @@ p
 ```
 ]
 
+--
+
 .pull-right[
 ```{r ref.label = "ggplot2_basic_example_mod1b", fig.width = 4, fig.height = 3, echo = FALSE}
 
 ```
 ]
 
+--
+
+<small>Bonus: What happens if you specify `legend.position = "top"`? What about `legend.position = "left"`? Try these options out in your R session to check your programming intuition. `r emo::ji("thumbs_up")`</small>
+
 ---
 
 ## Write better y and x axis labels
 
 .pull-left[
-Use the `labs()` function, specifying the `x` and `y` arguments to assign labels for those axes.
+To specify x and y axis labels, we add a layer using the `labs()` function.
 
 ```{r ggplot2_basic_example_mod2, fig.show = "hide"}
 
@@ -507,13 +537,17 @@ p
 ```
 ]
 
+--
+
 .pull-right[
 ```{r ref.label = "ggplot2_basic_example_mod2", fig.width = 4, fig.height = 3, echo = FALSE}
 
 ```
 ]
 
-<small>Note that I have added the `labs()` layer before the `theme()` layer. A common practice is to specify plot theme elements as the last step in the "background-to-foreground" approach of building `{ggplot2}` plots.</small>
+--
+
+<small>Notice that I have added the `labs()` layer before the `theme()` layer. A common practice is to specify plot theme elements as the last step in the "background-to-foreground" approach of building `{ggplot2}` plots.</small>
 
 ---
 
@@ -542,6 +576,8 @@ p
 ```
 ]
 
+--
+
 .pull-right[
 ```{r ref.label = "ggplot2_basic_example_mod3", fig.width = 4, fig.height = 3, echo = FALSE}
 
@@ -553,12 +589,16 @@ p
 ## Compare the pair
 
 .pull-left[
+From this...
 ```{r ref.label = "ggplot2_basic_example", fig.width = 4, fig.height = 3, echo = FALSE}
 
 ```
 ]
 
+--
+
 .pull-right[
+To this!
 ```{r ref.label = "ggplot2_basic_example_mod3", fig.width = 4, fig.height = 3, echo = FALSE}
 
 ```
@@ -595,7 +635,7 @@ Part 2. Build one of the following plots using the `{ggplot2}` package:
 - A scatterplot of quarter mile time (`qsec`) vs. miles per gallon (`mpg`).
 - A bar plot, counting the number of cars with 4, 6, or 8 cylinders (`cyl`).
 - A box plot of car weights (`wt`) by engine shape (`vs`).
-- Make up your own!
+- Or make up your own!
 
 ---
 
@@ -619,7 +659,7 @@ Google search for resources and forum posts related to what you're trying to ach
 
 ## Minimal worked examples
 
-I encourage you to have a go at building your plot first, before peeking at the worked examples!
+Have a go at building your plot first before peeking at the worked examples on the next few slides!
 
 <center>
 ```{r, out.width = "60%", echo = FALSE}
@@ -719,32 +759,32 @@ class: inverse, center, middle
 .pull-left[
 Last week, we learned how to import data from SQL into R, using code that looks something like what is shown on the right.
 
-<br />
-<br />
+Here I connect to the SQL datamart using the `{RODBC}` package.
 
-The imported data is stored in an object I've named `source_data` (highlighted).
+Then, using the `sqlQuery()` function, I read data from the datamart and store it in an object that I've named `source_data` (highlighted).
 ]
 
 .pull-right[
 ```{r import_data_from_sql, cache = TRUE}
 
-# Load libraries ---------------------------------------------------------------
+# Load libraries
 
 library(RODBC)
 
-# Establish ODBC connection ----------------------------------------------------
+# Establish ODBC connection
 
 con <- odbcConnect(
   "HPSNZ_Datamart",
   uid = Sys.getenv("datamart_user"),
   pwd = Sys.getenv("datamart_pwd"))
 
-# Read data into R -------------------------------------------------------------
+# Read data into R
 
 source_data <- sqlQuery( #<<
-  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_p2p_age]")
+  con,
+  "SELECT * FROM [CME_HPSNZ].[report].[vw_p2p_age]")
 
-# Close the ODBC connection ----------------------------------------------------
+# Close the ODBC connection
 
 odbcClose(con)
 
@@ -758,15 +798,13 @@ odbcClose(con)
 .pull-left[
 ```{r build_plot_first_example, fig.show = "hide"}
 
-# Build the plot ---------------------------------------------------------------
-
+# Build the plot
 p <- ggplot(
   data = source_data, # Specify the data source
   aes(x = age, y = p2p_intake)) # Specify variables for the x and y axes
 p <- p + geom_boxplot() # Create boxplots
 
-# Call the object to display the plot ------------------------------------------
-
+# Call the object to display the plot
 p
 
 ```
@@ -775,10 +813,18 @@ p
 --
 
 .pull-right[
-```{r ref.label = "build_plot_first_example", fig.width = 6, fig.height = 3, echo = FALSE}
+```{r ref.label = "build_plot_first_example", fig.width = 6, fig.height = 4, echo = FALSE}
 
 ```
 ]
+
+---
+
+## A closer look at report.vw_p2p_age
+
+---
+
+## Some plotting ideas
 
 ---
 class: inverse, center, middle
@@ -905,6 +951,28 @@ class: inverse, center, middle
 # Course project
 
 ## Design your own plot!
+
+---
+
+## Getting set up
+
+**If you've been using R while following these slides, now is a good time to clear your workspace and restart R.**
+
+Using Windows explorer, navigate to the local folder for your course project repo, then open the .Rproj file to open up a new session of RStudio from inside your project repo.
+
+Open the .Rmd file for your course project report.
+
+Create a new code chunk (the keyboard shortcut is CTRL + ALT + I).
+
+Give the code chunk and informative name related to the plot you will create.
+
+Write comments to plan out the plot you wan to create. Remember to start each line of your in-code comments with a # symbol.
+
+Your plotting plan could specify:
+
+- The variables you want on the x and y axes
+- The type of plot you want to create (e.g., bar plot, scatter plot, box plot, tree map)
+- The visual styling you want to apply to the plot (e.g., colours, axis and plot titles, labels, legends, text size)
 
 ---
 

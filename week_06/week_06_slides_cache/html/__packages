@@ -1,9 +1,5 @@
 base
-methods
-datasets
-utils
-grDevices
-graphics
-stats
 xaringanthemer
 RODBC
+ggplot2
+kableExtra
