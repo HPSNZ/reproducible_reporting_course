@@ -3,6 +3,7 @@
   <head>
     <title>Tidying data and building plots with R</title>
     <meta charset="utf-8" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
     <script src="libs/kePrint/kePrint.js"></script>
     <link href="libs/lightable/lightable.css" rel="stylesheet" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
@@ -23,15 +24,29 @@ class: center, middle, inverse, title-slide
 
 ## Before we get started
 
-If you'd like to code-along with the examples included in this slidedeck, make sure you have added this line to the .Renviron file in the local folder for your course project repo:
+If you'd like to code-along with the examples included in this slidedeck:
 
-&lt;br /&gt;
+1. Using Windows Explorer, navigate to the local folder that corresponds to your course project repo.
+
+--
+
+2. Open the .Rproj file in the local folder for your repo to launch R Studio inside your project.
+
+--
+
+3. From the *Files* viewer (typically the bottom right pane), open the .Renviron file.
+
+--
+
+4. Add the following line to your .Renviron file, then save your changes.
 
 `PATH="${RTOOLS40_HOME}\usr\bin;${PATH}"`
 
+--
+&lt;br /&gt;
 &lt;br /&gt;
 
-The .Renviron file defines project-specific environment variables, so this line points R and R Studio to where you have Rtools40 installed on your local machine.
+&lt;small&gt;The .Renviron file defines project-specific environment variables, so this line points R and R Studio to where you have Rtools40 installed on your local machine.&lt;/small&gt;
 
 ---
 class: inverse, center, middle
@@ -357,6 +372,8 @@ The data set includes 60 observations and 3 variables:
 
 .pull-left[
 On the right is a scrollable table you can use to inspect the `ToothGrowth` data set.
+
+&lt;br /&gt;
 
 Alternatively, you could type the following into your R console to generate an interactive table viewer inside your R session:
 
@@ -991,7 +1008,7 @@ class: inverse, center, middle
 
 ---
 
-## Import data...
+## Import data from SQL
 
 .pull-left[
 Last week, we learned how to import data from SQL into R, using code that looks something like what is shown on the right.
@@ -1029,7 +1046,13 @@ odbcClose(con)
 
 ---
 
-## Import data...then build a plot!
+## Inspect the imported data
+
+
+
+---
+
+## Build a plot using the imported data
 
 .pull-left[
 
@@ -1054,6 +1077,38 @@ p
 ---
 
 ## A closer look at report.vw_p2p_age
+
+We can use a range of base R functions to retrieve information about the data we've imported into SQL and is now stored in the object called `source_data`.
+
+
+
+---
+
+## A closer look at report.vw_p2p_age
+
+When we run `str(source_data)`, we see that this data frame includes 695 observations and 6 variables:
+
+- `question_text`: The text for questions that asked respondents to report their date-of-birth in an NZAJ survey.
+
+--
+
+- `survey_nickname`: Nicknames of NZAJ surveys included in the `report.vw_p2p_age` SQL view.
+
+--
+
+- `p2p_intake`: A string that categorises survey instances into intake groups (e.g., "Intake01", "Intake02", and so on). Intakes 1-5 survey responses are connected to one survey instance per P2P intake. From Intake 6 onwards, we set up one survey instance per sport.
+
+--
+
+- `audience`: Audience GUID values for individual respondents.
+
+--
+
+- `status`: Survey completion status. From Intake 6 onwards, We store date-of-birth data for all NZAJ survey audiences. This includes respondents who will go on to complete the survey, as well as those who won't. This variable is useful for differentiating between respondents and non-respondents.
+
+--
+
+- `age`: Respondent age at the time of survey completion.
 
 ---
 
