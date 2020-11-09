@@ -145,6 +145,10 @@ What makes it so useful is that it is based on a **layered grammar of graphics**
 <br />
 
 The grammar of graphics defines a logic for what makes up a plot and how data is mapped to aesthetic features.
+
+<br />
+
+<small>Note: The `gg` in `{ggplot2}` stands for **g**rammar of **g**raphics!</small>
 ]
 
 ---
@@ -809,44 +813,11 @@ odbcClose(con)
 
 ---
 
-## Inspect the imported data
-
-
-
----
-
-## Build a plot using the imported data
-
-.pull-left[
-```{r build_plot_first_example, fig.show = "hide"}
-
-# Build the plot
-p <- ggplot(
-  data = source_data, # Specify the data source
-  aes(x = age, y = p2p_intake)) # Specify variables for the x and y axes
-p <- p + geom_boxplot() # Create boxplots
-
-# Call the object to display the plot
-p
-
-```
-]
-
---
-
-.pull-right[
-```{r ref.label = "build_plot_first_example", fig.width = 6, fig.height = 4, echo = FALSE}
-
-```
-]
-
----
-
 ## A closer look at report.vw_p2p_age
 
-We can use a range of base R functions to retrieve information about the data we've imported into SQL and is now stored in the object called `source_data`.
+We can use a range of base R functions to retrieve information about the data we've imported into SQL and into an object called `source_data`.
 
-```{r eval = FALSE, echo = FALSE}
+```{r eval = FALSE}
 
 # Open up an interactive table viewer in RStudio
 View(source_data)
@@ -854,10 +825,9 @@ View(source_data)
 # Print to the console the first 6 rows of data
 head(source_data)
 
-# Print metadata to the console about the structure
-# of the data frame object, such as the number of variables,
-# the variable names, observation counts, and the
-# type of data within each variable.
+# Print metadata to the console about the structure of the data frame object, such as:
+# the number of variables, variable names, observation counts, and the type of data
+# within each variable.
 str(source_data)
 
 ```
@@ -866,9 +836,11 @@ str(source_data)
 
 ## A closer look at report.vw_p2p_age
 
-When we run `str(source_data)`, we see that this data frame includes 695 observations and 6 variables:
+From `str(source_data)`, we see that this data frame includes 695 observations and 6 variables:
 
-- `question_text`: The text for questions that asked respondents to report their date-of-birth in an NZAJ survey.
+--
+
+- `question_text`: The text of questions used to gather date-of-birth responses.
 
 --
 
@@ -888,11 +860,448 @@ When we run `str(source_data)`, we see that this data frame includes 695 observa
 
 --
 
-- `age`: Respondent age at the time of survey completion.
+- `age`: Respondent age at the time of survey completion (years).
 
 ---
 
-## Some plotting ideas
+## Build a plot using the imported data
+
+.pull-left[
+Let's create a set of box plots to show the spread of ages within each intake (one box plot per intake).
+
+```{r build_plot_sql_first_example, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake))
+p <- p + geom_boxplot()
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_first_example", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+---
+
+## Tweaking the plot
+
+.pull-left[
+It's a start, but there's room for improvement!
+
+```{r ref.label = "build_plot_sql_first_example", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+--
+
+.pull-right[
+We could:
+
+- Try applying different `{ggplot2}` themes to quickly change the look and feel of the overall plot.
+- Use colour to make each intake visually distinct.
+- Map nicer-looking values to the y axis ticks.
+- Plot every data point to show the age of all individuals in the data set.
+]
+
+---
+
+## Apply {ggplot} themes
+
+
+<small>`{ggplot}` includes a range of complete themes to efficiently re-style plots [**(Wickham, Navarro, and Pedersen, n.d.)**](https://ggplot2-book.org/polishing.html#themes).</small>
+
+--
+
+.pull-left[
+<small>For example, `theme_bw()` applies a white background with light grey gridlines.</small>
+
+```{r build_plot_sql_second_example, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake))
+p <- p + geom_boxplot()
+p <- p + theme_bw() #<<
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_second_example", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+--
+
+<small>Try applying other complete themes: `theme_linedraw()`, `theme_light()`, `theme_dark()`, `theme_minimal()`, `theme_classic()`, or `theme_void()`.</small>
+
+---
+
+## Use colours to distinguish intakes
+
+.pull-left[
+As we did earlier, we can modify the existing `aes()` function that is specified in our "canvas" layer of the plot. We want to `fill` the box plots with colour, based on values in the variable `p2p_intake`.
+
+```{r build_plot_sql_third_example_part1, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      fill = p2p_intake)) #<<
+p <- p + geom_boxplot()
+p <- p + theme_bw()
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_third_example_part1", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+---
+
+## Use colours to distinguish intakes
+
+.pull-left[
+We can also use the `colour` argument to set plot colours based on data values.
+
+What do you notice about what `colour` does differently to `fill`?
+
+```{r build_plot_sql_third_example_part2, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake)) #<<
+p <- p + geom_boxplot()
+p <- p + theme_bw()
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_third_example_part2", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+---
+
+## Use colours to distinguish intakes
+
+.pull-left[
+The legend duplicates info we already have on the y axis, so let's remove it.
+
+```{r build_plot_sql_third_example_part3, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot()
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none") #<<
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_third_example_part3", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+---
+
+## Map custom values to the y axis ticks
+
+In the data we've imported from SQL, the variable `p2p_intake` labels each intake as "Intake01", "Intake02", and so on.
+
+--
+<br />
+
+We can make the plot look a little cleaner by mapping custom values onto the values in `p2p_intake`.
+
+--
+<br />
+
+This will require our first foray into data wrangling! First, we need to create a new object to specify how want the existing values in `p2p_intake` to map to new, nicer-looking values.
+
+---
+
+## Map custom values to the y axis ticks
+
+The code below uses the function `c()` to create a *vector*, which we assign (with the `<-` arrow) to the object called `p2p_intake_labels`.
+
+```{r build_plot_sql_wrangle_y_tick_labels_part_1}
+
+p2p_intake_labels <- c(
+  "Intake01" = "Intake 1", #<<
+  "Intake02" = "Intake 2",
+  "Intake03" = "Intake 3",
+  "Intake04" = "Intake 4",
+  "Intake05" = "Intake 5",
+  "Intake06" = "Intake 6")
+
+```
+
+--
+
+There are six items in this named vector, separated by commas and shown on separate lines for clarity. For instance, consider the first item in the vector (highlighted line):
+
+--
+
+- Left of the `=` sign, we name the existing value `"Intake01"` that we want to be mapped to...
+
+--
+
+- ...the new value `"Intake 1"` on the right side of the `=` sign.
+
+---
+
+## Map custom values to the y axis ticks
+
+.pull-left[
+<small>Now we add a new layer to the plot. We use the `scale_y_discrete()` function because we want to modify the y axis which, in this case, displays a discrete (i.e., categorical) variable.</small>
+
+```{r build_plot_sql_third_example_part4, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot()
+p <- p + scale_y_discrete( #<<
+  labels = p2p_intake_labels) #<<
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+
+<small>*(What do you think `scale_y_continuous()` is used for?)*</small>
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_third_example_part4", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+---
+
+## Just for fun...
+
+If you can type it in a string, you can map any value to another.
+
+.pull-left[
+```{r build_plot_sql_wrangle_y_tick_labels_part_2}
+
+p2p_intake_fruits <- c(
+  "Intake01" = "Apple",
+  "Intake02" = "Feijoa",
+  "Intake03" = "Clementine",
+  "Intake04" = "Pawpaw",
+  "Intake05" = "Dragonfruit",
+  "Intake06" = "Banana")
+
+```
+]
+
+--
+
+.pull-right[
+```{r plot_with_fruit_labels, fig.width = 6, fig.height = 4, echo = FALSE}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot()
+p <- p + scale_y_discrete(
+  labels = p2p_intake_fruits)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+]
+
+---
+
+## Plot every data point...but why?
+
+.pull-left[
+[Box plots](https://en.wikipedia.org/wiki/Box_plot) are useful for visually summarising the central tendency and spread of a data set.
+
+<br />
+
+The drawback of box plots (and other similar "summary" methods for data visualisation) is that you miss the detail in the data.
+
+<br />
+
+Box plots give us a high-level overview, but sometimes we want granular understanding.
+]
+
+.pull-right[
+<center>
+```{r, out.width = "70%", echo = FALSE}
+
+knitr::include_graphics("images/jon-tyson-hhq1Lxtuwd8-unsplash.jpg")
+
+```
+<br />
+<br />
+<small>Image credit: <a href="https://unsplash.com/photos/hhq1Lxtuwd8" target="_blank">Jon Tyson</a></small></center>
+]
+
+---
+
+## Plot every data point
+
+.pull-left[
+Recall the layered grammar of graphics framework. With `{ggplot2}`, you don't have to pick only one type of plot to work with.
+
+<br />
+
+**You can specify different plot types in different layers of the same plot object.**  
+**F a n c y!**
+
+<br />
+When you paint, you aren't restricted to only painting one background layer and one foreground layer. The same applies to making plots with `{ggplot2}`.
+]
+
+.pull-right[
+<center>
+```{r out.width = "55%", echo = FALSE}
+
+knitr::include_graphics("images/jeremy-chen-mAFMbdaU4eY-unsplash.jpg")
+
+```
+<br />
+<br />
+<small>Image credit: <a href="https://unsplash.com/photos/mAFMbdaU4eY" target="_blank">Jeremy Chen</a></small></center>
+]
+
+---
+
+## Plot every data point
+
+.pull-left[
+<small>Let's add `geom_point()` on top of `geom_boxplot()`.</small>
+
+```{r build_plot_sql_fourth_example_part1, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot()
+p <- p + geom_point() #<<
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_fourth_example_part1", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+--
+
+<small>Hmm...not quite right! `geom_point()` has precisely plotted the age data, but the data set includes many respondents who were the same age in years (at the time they completed their NZAJ survey). All the data points are there but they're not visible, because repeated ages are plotted on top of one another!</small>
+
+---
+
+## Plot every data point - take 2
+
+.pull-left[
+Use `geom_jitter()` instead to plot each data point with a small amount of random variation added to the location of each point.
+
+```{r build_plot_sql_fourth_example_part2, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot()
+p <- p + geom_jitter() #<<
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_fourth_example_part2", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
 
 ---
 class: inverse, center, middle
@@ -1046,8 +1455,12 @@ Your plotting plan could specify:
 
 ## References
 
+Box plot. (n.d.) In *Wikipedia*. Retrieved November 9, 2020 from https://en.wikipedia.org/wiki/Box_plot
+
 Grolemund, G. & Wickham, H. (2017). *R for Data Science*. Retrieved from https://r4ds.had.co.nz/
 
 Harrison, E. & Pius, R. (2020). *R for Health Data Science*. Retrieved from https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html
 
 Wickham, H. (2010). A layered grammar of graphics. *Journal of Computational and Graphical Statistics*, *19*(1), 3–28. Retrieved from https://vita.had.co.nz/papers/layered-grammar.html
+
+Wickham, H., Navarro, D., & Pedersen, T.L. (n.d.). [*ggplot2: Elegant Graphics for Data Analysis*](https://ggplot2-book.org/).
