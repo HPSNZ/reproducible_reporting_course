@@ -138,15 +138,9 @@ background-size: contain
 .pull-right[
 `{ggplot2}` is a powerful, flexible, and widely used R package for making plots.
 
-<br />
-
 What makes it so useful is that it is based on a **layered grammar of graphics**, "a coherent system for describing and building graphs" [(Grolemund & Wickham, 2017)](https://r4ds.had.co.nz/data-visualisation.html#introduction-1).
 
-<br />
-
 The grammar of graphics defines a logic for what makes up a plot and how data is mapped to aesthetic features.
-
-<br />
 
 <small>Note: The `gg` in `{ggplot2}` stands for **g**rammar of **g**raphics!</small>
 ]
@@ -205,6 +199,114 @@ When building plots with `{ggplot2}`:
 - You write code for each plot layer in order, from background to foreground.
 
 <small>Image credit: [Glen Carrie](https://unsplash.com/photos/J-PYjAqd2HU)</small>
+
+---
+class: inverse, center, middle
+
+# Recap: Tidy data principles
+
+---
+
+## Tidy data and {ggplot2}
+
+`{ggplot2}` is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
+
+--
+
+`{ggplot2}` works best with **tidy data** that is in **long format**.
+
+---
+
+## Remind me...what is tidy data?
+
+Data is tidy when:
+
+- Columns are variables,
+
+--
+
+- Rows are observations, and
+
+--
+
+- Every row is at a consistent level of observation.
+
+---
+
+## What is long data?
+
+Data is long when factor levels are stored within a column, and observation values are stored in a separate column [(Harrison & Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
+
+---
+
+## Example of long data
+
+.pull-left[
+```{r long_format_example, echo = FALSE, message = FALSE}
+
+library(palmerpenguins)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+penguins %>%
+  select(species, sex, body_mass_g) %>%
+  kable() %>%
+  scroll_box(width = "400px", height = "450px")
+
+```
+]
+
+.pull-right[
+The example on the left uses data from the `{palmerpenguins}` R package.
+
+There are two factor variables ("species" and "sex"), each stored as columns.
+
+Observation values for body mass are stored in the variable "body_mass_g". Each row corresponds to one penguin.
+
+*****
+
+*Can you identify the factor levels within "species"? Hint: There are 3 levels.*
+
+]
+
+---
+
+## What is wide data?
+
+Data is wide when some or all of the columns are levels of a factor [(Harrison & Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
+
+Wide data tends to be easier for humans to read. For example: You might wrangle data into wide format when you want to display it in a table. We'll get to that next week!
+
+---
+
+## Example of wide data
+
+In the example below, data from the `{palmerpenguins}` package has been transposed from long to wide format. The factor variable is "species" and the levels within that factor are "Adelie", "Chinstrap", and "Gentoo". The values are the mean body mass in grams for males and females of each species.
+
+```{r wide_format_example, echo = FALSE}
+
+library(tidyr)
+
+penguins %>%
+  select(species, sex, body_mass_g) %>%
+  filter(!is.na(sex)) %>%
+  group_by(sex, species) %>%
+  summarise(
+    body_mass_g_mean = round(mean(body_mass_g), 0),
+    .groups = "drop") %>%
+  pivot_wider(
+    id_cols = "sex",
+    names_from = "species",
+    values_from = "body_mass_g_mean") %>%
+  kable()
+
+```
+
+---
+class: inverse, center, middle
+
+# Understanding {ggplot2} code
 
 ---
 
@@ -633,13 +735,33 @@ class: inverse, center, middle
 
 ---
 
-## Build a plot using a built-in data set
+## Activity 1
 
-Task: Use the `mtcars` built-in data set to make a plot.
+Use the `mtcars` built-in data set to make a plot.
 
 --
 
-<br />
+### Setting up
+
+Open up R Studio: Launch the .Rproj file from the local folder of your course project repo.
+
+--
+
+In the console (bottom left pane), install the {ggplot2} package:
+
+```{r, eval = FALSE}
+
+install.packages("ggplot2")
+
+```
+
+--
+
+A script for this activity has been added to your course project repo to help with this activity. `r emo::ji("grin")` See: `/R/starter_script_mtcars.R`
+
+---
+
+## Activity 1 workflow
 
 Part 1. Familiarise yourself with `mtcars`:
 
@@ -647,10 +769,9 @@ Part 1. Familiarise yourself with `mtcars`:
 - Visually inspect the data set. In your R console, run `View(mtcars)`.
 
 --
-
 <br />
 
-Part 2. Build one of the following plots using the `{ggplot2}` package:
+Part 2. Edit the starter script to build one of the following plots using the `{ggplot2}` package:
 
 - A scatterplot of quarter mile time (`qsec`) vs. miles per gallon (`mpg`).
 - A bar plot, counting the number of cars with 4, 6, or 8 cylinders (`cyl`).
@@ -1273,7 +1394,7 @@ p
 ## Plot every data point - take 2
 
 .pull-left[
-Use `geom_jitter()` instead to plot each data point with a small amount of random variation added to the location of each point.
+<small>Use `geom_jitter()` instead to plot each data point with a small amount of random variation added to the location of each point.</small>
 
 ```{r build_plot_sql_fourth_example_part2, fig.show = "hide"}
 
@@ -1301,155 +1422,306 @@ p
 ```{r ref.label = "build_plot_sql_fourth_example_part2", fig.width = 6, fig.height = 4, echo = FALSE}
 
 ```
+<small>We can now see all the data points, but it's a bit cluttered - we can modify arguments within `geom_jitter()` to make some adjustments.</small>
+]
+
+
+---
+
+## Plot every data point - take 3
+
+.pull-left[
+```{r build_plot_sql_fourth_example_part3, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot()
+p <- p + geom_jitter(
+  height = 0.25, #<<
+  alpha = 0.5) #<<
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+<small>By using the `height` argument, we can change how closely the data points are clustered together. We can also use the `alpha` argument to change the opacity (transparency) of each data point.</small>
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_fourth_example_part3", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+<small>Notice that there are some points that are *not transparent* but are opaque - these are outliers in the box plot layer that we will remove to avoid double-plotting those points across two `geom` layers.</small>
+]
+
+---
+
+## Plot every data point - ta da!
+
+.pull-left[
+```{r build_plot_sql_fourth_example_part4, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot(
+  outlier.shape = NA) #<<
+p <- p + geom_jitter(
+  height = 0.25,
+  alpha = 0.5)
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_fourth_example_part4", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+---
+
+## Compare the pair
+
+.pull-left[
+```{r ref.label = "build_plot_sql_first_example", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_fourth_example_part4", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
 ]
 
 ---
 class: inverse, center, middle
 
-# Data types in R
+## Activity 2
 
----
-class: inverse, center, middle
-
-# Going further with tidy data
+### Plotting data from the SQL datamart
 
 ---
 
-## Recap: Tidy data principles
-
----
-
-## Tidy data and {ggplot2}
-
-`{ggplot2}` is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
-
---
-
-`{ggplot2}` works best with **tidy data** that is in **long format**.
-
----
-
-## Remind me...what is tidy data?
-
-Data is tidy when:
-
-- Columns are variables,
-
---
-
-- Rows are observations, and
-
---
-
-- Every row is at a consistent level of observation.
-
----
-
-## What is long data?
-
-Data is long when factor levels are stored within a column, and observation values are stored in a separate column [(Harrison & Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
-
----
-
-## Example of long data
+## Activity 2
 
 .pull-left[
-```{r long_format_example, echo = FALSE, message = FALSE}
+Modify the code used to plot data from `report.vw_p2p_age` to change its appearance.
 
-library(palmerpenguins)
-library(dplyr)
-library(knitr)
-library(kableExtra)
+```{r ref.label = "build_plot_sql_fourth_example_part4", fig.width = 6, fig.height = 4, echo = FALSE}
 
-penguins %>%
-  select(species, sex, body_mass_g) %>%
-  kable() %>%
-  scroll_box(width = "400px", height = "450px")
+```
+]
+
+--
+
+.pull-right[
+### Setting up
+
+If you're not already in R Studio: Launch the .Rproj file from the local folder of your course project repo.
+
+If you are working in your course project repo within R Studio: Clear your workspace and restart R.
+
+A script for this activity has been added to your course project repo to help with this activity. `r emo::ji("dancing")` See: `/R/starter_script_p2p_age.R`
+]
+
+---
+
+## Activity 2 workflow
+
+Part 1. Familiarise yourself with `source_data`:
+
+- Visually inspect the data set. In your R console, run `View(source_data)`.
+
+--
+<br />
+
+Part 2. Edit the starter script to make one or more of the following plot modifications:
+
+- Make the borders of the box plot thicker.
+- Increase the size of the jittered data points.
+- Change the x axis scale to range from 0 to 70 (years of age).
+- Or come up with your own mods and search Google to find ways to implement your idea!
+
+---
+
+## Worked examples
+
+Have a go at first before peeking at the worked examples on the next few slides!
+
+<center>
+```{r, out.width = "40%", echo = FALSE}
+
+knitr::include_graphics("images/gene-bakner-VEfYYt52aq0-unsplash.jpg")
+
+```
+<br />
+<br />
+<small>Image credit: <a href="https://unsplash.com/photos/VEfYYt52aq0" target="_blank">Gene Bakner</a></small>
+</center>
+
+---
+
+## Example: Thicker box plot borders
+
+.pull-left[
+```{r p2p_age_example1, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot(
+  outlier.shape = NA,
+  size = 1) #<<
+p <- p + geom_jitter(
+  height = 0.25,
+  alpha = 0.5)
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
 
 ```
 ]
 
 .pull-right[
-The example on the left uses data from the `{palmerpenguins}` R package.
+```{r ref.label = "p2p_age_example1", fig.width = 6, fig.height = 4, echo = FALSE}
 
-There are two factor variables ("species" and "sex"), each stored as columns.
-
-Observation values for body mass are stored in the variable "body_mass_g". Each row corresponds to one penguin.
-
-*****
-
-*Can you identify the factor levels within "species"? Hint: There are 3 levels.*
-
+```
 ]
 
 ---
 
-## What is wide data?
+## Example: Increase size of data points
 
-Data is wide when some or all of the columns are levels of a factor [(Harrison & Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
+.pull-left[
+```{r p2p_age_example2, fig.show = "hide"}
 
-Wide data tends to be easier for humans to read. For example: You might wrangle data into wide format when you want to display it in a table. We'll get to that next week!
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot(
+  outlier.shape = NA)
+p <- p + geom_jitter(
+  height = 0.25,
+  alpha = 0.5,
+  size = 3) #<<
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
 
----
-
-## Example of wide data
-
-In the example below, data from the `{palmerpenguins}` package has been transposed from long to wide format. The factor variable is "species" and the levels within that factor are "Adelie", "Chinstrap", and "Gentoo". The values are the mean body mass in grams for males and females of each species.
-
-```{r wide_format_example, echo = FALSE}
-
-library(tidyr)
-
-penguins %>%
-  select(species, sex, body_mass_g) %>%
-  filter(!is.na(sex)) %>%
-  group_by(sex, species) %>%
-  summarise(
-    body_mass_g_mean = round(mean(body_mass_g), 0),
-    .groups = "drop") %>%
-  pivot_wider(
-    id_cols = "sex",
-    names_from = "species",
-    values_from = "body_mass_g_mean") %>%
-  kable()
+# Call the object to display the plot
+p
 
 ```
+]
+
+.pull-right[
+```{r ref.label = "p2p_age_example2", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+---
+
+## Example: Set x axis scale from 0 to 70
+
+.pull-left[
+```{r p2p_age_example3, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot(
+  outlier.shape = NA)
+p <- p + geom_jitter(
+  height = 0.25,
+  alpha = 0.5)
+p <- p + scale_x_continuous( #<<
+  limits = c(0, 70)) #<<
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+]
+
+.pull-right[
+```{r ref.label = "p2p_age_example3", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
 
 ---
 class: inverse, center, middle
 
-# Activity 3: Getting fancy
+# Activity 3:
 
-## Wrangling data and customising plots
+## Design a plot for your course project!
+
+---
+
+## Activity 3
+
+Plan and begin building a plot using data from the SQL datamart that is relevant to your course project.
+
+--
+
+## We'll do this together in our Week 6 group sessions!
+
+This activity will tie together what we've learned so far:
+
+- Working within an R Markdown file
+
+--
+
+- Importing data from SQL into R
+
+--
+
+- Building plots using `{ggplot2}`
 
 ---
 class: inverse, center, middle
 
-# Course project
-
-## Design your own plot!
-
----
-
-## Getting set up
-
-**If you've been using R while following these slides, now is a good time to clear your workspace and restart R.**
-
-Using Windows explorer, navigate to the local folder for your course project repo, then open the .Rproj file to open up a new session of RStudio from inside your project repo.
-
-Open the .Rmd file for your course project report.
-
-Create a new code chunk (the keyboard shortcut is CTRL + ALT + I).
-
-Give the code chunk and informative name related to the plot you will create.
-
-Write comments to plan out the plot you wan to create. Remember to start each line of your in-code comments with a # symbol.
-
-Your plotting plan could specify:
-
-- The variables you want on the x and y axes
-- The type of plot you want to create (e.g., bar plot, scatter plot, box plot, tree map)
-- The visual styling you want to apply to the plot (e.g., colours, axis and plot titles, labels, legends, text size)
+# That's it for Week 6 - ka pai!
 
 ---
 
