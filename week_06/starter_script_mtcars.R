@@ -9,6 +9,10 @@
 # mtcars is a built-in data set that comes with installing R,
 # so you don't need to explicitly import it into your R session.
 
+# Load libraries ---------------------------------------------------------------
+
+library(ggplot2)
+
 # Build the plot ---------------------------------------------------------------
 
 # When creating a {ggplot2} plot, the first function is always ggplot().
