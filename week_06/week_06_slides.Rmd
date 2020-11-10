@@ -138,15 +138,9 @@ background-size: contain
 .pull-right[
 `{ggplot2}` is a powerful, flexible, and widely used R package for making plots.
 
-<br />
-
 What makes it so useful is that it is based on a **layered grammar of graphics**, "a coherent system for describing and building graphs" [(Grolemund & Wickham, 2017)](https://r4ds.had.co.nz/data-visualisation.html#introduction-1).
 
-<br />
-
 The grammar of graphics defines a logic for what makes up a plot and how data is mapped to aesthetic features.
-
-<br />
 
 <small>Note: The `gg` in `{ggplot2}` stands for **g**rammar of **g**raphics!</small>
 ]
@@ -639,8 +633,6 @@ Task: Use the `mtcars` built-in data set to make a plot.
 
 --
 
-<br />
-
 Part 1. Familiarise yourself with `mtcars`:
 
 - Check the data set description. In your R console, run `help(mtcars)`.
@@ -648,14 +640,16 @@ Part 1. Familiarise yourself with `mtcars`:
 
 --
 
-<br />
-
 Part 2. Build one of the following plots using the `{ggplot2}` package:
 
 - A scatterplot of quarter mile time (`qsec`) vs. miles per gallon (`mpg`).
 - A bar plot, counting the number of cars with 4, 6, or 8 cylinders (`cyl`).
 - A box plot of car weights (`wt`) by engine shape (`vs`).
 - Or make up your own!
+
+--
+
+A starter script has been added to the `/R` folder in your course project repo to help you with this activity. `r emo::ji("grin")`
 
 ---
 
@@ -1273,7 +1267,7 @@ p
 ## Plot every data point - take 2
 
 .pull-left[
-Use `geom_jitter()` instead to plot each data point with a small amount of random variation added to the location of each point.
+<small>Use `geom_jitter()` instead to plot each data point with a small amount of random variation added to the location of each point.</small>
 
 ```{r build_plot_sql_fourth_example_part2, fig.show = "hide"}
 
@@ -1299,6 +1293,99 @@ p
 
 .pull-right[
 ```{r ref.label = "build_plot_sql_fourth_example_part2", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+<small>We can now see all the data points, but it's a bit cluttered - we can modify arguments within `geom_jitter()` to make some adjustments.</small>
+]
+
+
+---
+
+## Plot every data point - take 3
+
+.pull-left[
+```{r build_plot_sql_fourth_example_part3, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot()
+p <- p + geom_jitter(
+  height = 0.25, #<<
+  alpha = 0.5) #<<
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+<small>By using the `height` argument, we can change how closely the data points are clustered together. We can also use the `alpha` argument to change the opacity (transparency) of each data point.</small>
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_fourth_example_part3", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+<small>Notice that there are some points that are *not transparent* but are opaque - these are outliers in the box plot layer that we will remove to avoid double-plotting those points across two `geom` layers.</small>
+]
+
+---
+
+## Plot every data point - ta da!
+
+.pull-left[
+```{r build_plot_sql_fourth_example_part4, fig.show = "hide"}
+
+# Build the plot
+p <- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p <- p + geom_boxplot(
+  outlier.shape = NA) #<<
+p <- p + geom_jitter(
+  height = 0.25,
+  alpha = 0.5)
+p <- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p <- p + theme_bw()
+p <- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_fourth_example_part4", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+---
+
+## Compare the pair
+
+.pull-left[
+```{r ref.label = "build_plot_sql_first_example", fig.width = 6, fig.height = 4, echo = FALSE}
+
+```
+]
+
+--
+
+.pull-right[
+```{r ref.label = "build_plot_sql_fourth_example_part4", fig.width = 6, fig.height = 4, echo = FALSE}
 
 ```
 ]

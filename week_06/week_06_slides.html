@@ -119,15 +119,9 @@ background-size: contain
 .pull-right[
 `{ggplot2}` is a powerful, flexible, and widely used R package for making plots.
 
-&lt;br /&gt;
-
 What makes it so useful is that it is based on a **layered grammar of graphics**, "a coherent system for describing and building graphs" [(Grolemund &amp; Wickham, 2017)](https://r4ds.had.co.nz/data-visualisation.html#introduction-1).
 
-&lt;br /&gt;
-
 The grammar of graphics defines a logic for what makes up a plot and how data is mapped to aesthetic features.
-
-&lt;br /&gt;
 
 &lt;small&gt;Note: The `gg` in `{ggplot2}` stands for **g**rammar of **g**raphics!&lt;/small&gt;
 ]
@@ -1460,7 +1454,7 @@ p
 ## Plot every data point - take 2
 
 .pull-left[
-Use `geom_jitter()` instead to plot each data point with a small amount of random variation added to the location of each point.
+&lt;small&gt;Use `geom_jitter()` instead to plot each data point with a small amount of random variation added to the location of each point.&lt;/small&gt;
 
 
 ```r
@@ -1485,6 +1479,89 @@ p
 
 .pull-right[
 &lt;img src="week_06_slides_files/figure-html/unnamed-chunk-36-1.png" width="1800" /&gt;
+&lt;small&gt;We can now see all the data points, but it's a bit cluttered - we can modify arguments within `geom_jitter()` to make some adjustments.&lt;/small&gt;
+]
+
+
+---
+
+## Plot every data point - take 3
+
+.pull-left[
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p &lt;- p + geom_boxplot()
+p &lt;- p + geom_jitter(
+* height = 0.25,
+* alpha = 0.5)
+p &lt;- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p &lt;- p + theme_bw()
+p &lt;- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+```
+&lt;small&gt;By using the `height` argument, we can change how closely the data points are clustered together. We can also use the `alpha` argument to change the opacity (transparency) of each data point.&lt;/small&gt;
+]
+
+--
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-37-1.png" width="1800" /&gt;
+&lt;small&gt;Notice that there are some points that are *not transparent* but are opaque - these are outliers in the box plot layer that we will remove to avoid double-plotting those points across two `geom` layers.&lt;/small&gt;
+]
+
+---
+
+## Plot every data point - ta da!
+
+.pull-left[
+
+```r
+# Build the plot
+p &lt;- ggplot(
+  data = source_data,
+  aes(x = age, y = p2p_intake,
+      colour = p2p_intake))
+p &lt;- p + geom_boxplot(
+* outlier.size = NA)
+p &lt;- p + geom_jitter(
+  height = 0.25,
+  alpha = 0.5)
+p &lt;- p + scale_y_discrete(
+  labels = p2p_intake_labels)
+p &lt;- p + theme_bw()
+p &lt;- p + theme(legend.position = "none")
+
+# Call the object to display the plot
+p
+```
+]
+
+--
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-38-1.png" width="1800" /&gt;
+]
+
+---
+
+## Compare the pair
+
+.pull-left[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-39-1.png" width="1800" /&gt;
+]
+
+--
+
+.pull-right[
+&lt;img src="week_06_slides_files/figure-html/unnamed-chunk-40-1.png" width="1800" /&gt;
 ]
 
 ---
