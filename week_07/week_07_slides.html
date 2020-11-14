@@ -3,6 +3,7 @@
   <head>
     <title>Going further with tidy data and {ggplot2}</title>
     <meta charset="utf-8" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -48,13 +49,11 @@ background-size: contain
 ]
 
 .pull-right[
-`{ggplot2}` is a powerful, flexible, and widely used R package for making plots.
+`{ggplot2}` is based on a **layered grammar of graphics**, "a coherent system for describing and building graphs" [(Grolemund &amp; Wickham, 2017)](https://r4ds.had.co.nz/data-visualisation.html#introduction-1).
 
-What makes it so useful is that it is based on a **layered grammar of graphics**, "a coherent system for describing and building graphs" [(Grolemund &amp; Wickham, 2017)](https://r4ds.had.co.nz/data-visualisation.html#introduction-1).
+&lt;br /&gt;
 
 The grammar of graphics defines a logic for what makes up a plot and how data is mapped to aesthetic features.
-
-&lt;small&gt;Note: The `gg` in `{ggplot2}` stands for **g**rammar of **g**raphics!&lt;/small&gt;
 ]
 
 ---
@@ -63,7 +62,9 @@ The grammar of graphics defines a logic for what makes up a plot and how data is
 
 As described by [Wickham (2010)](https://vita.had.co.nz/papers/layered-grammar.html), take a set of graphical elements...
 
-&lt;center&gt;&lt;img src="images/lgog_fig1.png"&gt;&lt;/center&gt;
+&lt;center&gt;
+&lt;img src="images/lgog_fig1.png" width="60%" /&gt;
+&lt;/center&gt;
 
 ---
 
@@ -71,83 +72,272 @@ As described by [Wickham (2010)](https://vita.had.co.nz/papers/layered-grammar.h
 
 ...then layer the elements on top of one another to produce a plot.
 
-&lt;center&gt;&lt;img src="images/lgog_fig2.png"&gt;&lt;/center&gt;
-
----
-background-image: url('images/glen-carrie-J-PYjAqd2HU-unsplash_bg.jpg')
-background-position: center
-background-size: contain    
-
-## An analogy: Painting and {ggplot2}
-
-Imagine a simplified process for painting:
-
---
-
-- You have something to paint on (e.g., a canvas),
-
---
-
-- You have a rough idea of what you want the finished piece to look like, and
-
---
-
-- You paint in layers from background to foreground.
-
-&lt;br /&gt;
-
---
-
-When building plots with `{ggplot2}`:
-
-- Your "canvas" is the plotting area and coordinate system,
-
---
-
-- You have a type of plot in mind (e.g., a bar plot, one colour per group), and
-
---
-
-- You write code for each plot layer in order, from background to foreground.
-
-&lt;small&gt;Image credit: [Glen Carrie](https://unsplash.com/photos/J-PYjAqd2HU)&lt;/small&gt;
+&lt;center&gt;
+&lt;img src="images/lgog_fig2.png" width="45%" /&gt;
+&lt;/center&gt;
 
 ---
 class: inverse, center, middle
 
-# Recap: Tidy data principles
+# How to tidy data
 
 ---
 
 ## Tidy data and {ggplot2}
 
-`{ggplot2}` is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
-
---
-
 `{ggplot2}` works best with **tidy data** that is in **long format**.
-
----
-
-## Remind me...what is tidy data?
 
 Data is tidy when:
 
 - Columns are variables,
-
---
-
 - Rows are observations, and
-
---
-
 - Every row is at a consistent level of observation.
+
+Data is long when factor levels are stored within a column, and observation values are stored in a separate column [(Harrison &amp; Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
 
 ---
 
-## What is long data?
+## From *what* to *how*
 
-Data is long when factor levels are stored within a column, and observation values are stored in a separate column [(Harrison &amp; Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
+So far, we've learned about **what** tidy data is. This week, we'll focus on **how** to tidy data.
+
+Some common data tidying tasks include:
+
+- Renaming variables
+- Defining data types
+- Creating subsets that include only specified variables
+- Creating subsets by filtering observations
+- Calculating summary statistics
+- Creating new variables
+- Reshaping data (e.g., from wide to long format)
+
+---
+
+## Before we proceed...
+
+We will use a mix of base R functions and functions from the `{dplyr}` and `{tidyr}`
+
+If you want to code along as you work through the slides, you'll need to install `{janitor}`, `{dplyr}`, `{tidyr}`.
+
+**Do you remember how to install packages in R?** Give it a go on your own! If you need help, the code for installing these packages will display on the next slide.
+
+---
+
+## Installing packages
+
+Run the code below, one line at a time, in the R console of your R Studio session.
+
+
+```r
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("janitor")
+```
+
+---
+
+## Renaming variables: Concepts
+
+Based on guidance from [Bryan (2015)](https://speakerdeck.com/jennybc/how-to-name-files) and [Wickham (2014)](http://adv-r.had.co.nz/Style.html), key principles I use when naming variables (and objects!) in R:
+
+- **Machine-readable:** Avoid spaces, punctuation, accented characters, different files with very similar names.
+- **Human-readable:** Include meaningful information about the file content that human readers can undersatnd.
+- **In snake case:** Lower case with underscores to separate words within a name.
+- **As concise as possible:** While meeting the 3 principles above! Shorter names are easier to type.
+
+---
+
+## Renaming variables: Example
+
+Let's import data from SQL into R.
+
+Read through the code below - can you identify the SQL object that is being imported? What information might be stored in this SQL object? 
+
+
+```r
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con &lt;- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+audience_data &lt;- sqlQuery(
+  con,
+  "SELECT * FROM [CME_HPSNZ].[survey].[vw_audience_p2p]")
+
+# Close the ODBC connection
+odbcClose(con)
+```
+
+---
+
+## Renaming variables: Example
+
+We can check the names of variables in a data set by using the `names()` function.
+
+In your console, try:
+
+
+```r
+names(audience_data)
+```
+
+--
+
+
+```
+##  [1] "survey"                 "title"                  "nickname"              
+##  [4] "survey_start_date"      "survey_end_date"        "supplier_survey_id"    
+##  [7] "survey_url"             "survey_type"            "organisation"          
+## [10] "nso_name"               "audience"               "individual"            
+## [13] "first_name"             "last_name"              "full_name"             
+## [16] "Date_of_Birth"          "Gender"                 "Email_Address"         
+## [19] "team"                   "sport"                  "role_class"            
+## [22] "Address_County"         "survey_completion_date" "status"
+```
+
+--
+
+Which variable names do not adhere to our key naming principles? (*machine-readable*, *human-readable*, *in snake case*, *as concise as possible*)
+
+---
+
+## Renaming variables: In practice
+
+There are a handful of variables that don't adhere to the naming principles: `Date_of_Birth`, `Gender`, `Email_Address`, `Address_County`. You might also see `title` and `nickname` as ambiguous names.
+
+We can use the `{janitor}` package to efficiently clean up variable names. The `clean_names()` function modifies variable names so they are *machine-readable* and *in snake case*.
+
+---
+
+## Renaming variables: In practice
+
+
+```r
+# Load the {janitor} library
+library(janitor)
+
+# Clean up variable names using clean_names()
+*audience_data %&gt;%
+* clean_names() -&gt; audience_data_tidy
+```
+
+The highlighted code above introduces two new symbols:
+
+--
+
+- `%&gt;%`: This is a pipe operator, which comes from the `{dplyr}` package. In plain language, you can think of the pipe to mean *"and then"*.
+
+--
+
+- `-&gt;`: Right assignment. Takes everything to the left of the `-&gt;` and stores it in the object named to the right of the `-&gt;`.
+
+--
+
+Therefore, we can describe the logic of the highlighted code as:
+
+&gt; Call the object called `audience_data`, and then  
+&gt; clean up the variable names and assign the data set to a new object called `audience_data_tidy`.
+
+---
+
+## Side note: Keeping raw and tidy data separate
+
+Notice that the code calls the raw data object `audience_data`, applies a function, then stores the modified data in a new object called `audience_data_tidy`. **Why is this important?**
+
+
+```r
+# Clean up variable names using clean_names()
+audience_data %&gt;%
+  clean_names() -&gt; audience_data_tidy
+```
+
+--
+
+It is good practice to **never overwrite the raw data**. Remember that this is a cornerstone of reproducible research: other people should be able to use the same raw data and apply the same computational steps to reach the same outcome that you achieve.
+
+--
+
+If new work is saved over a raw data set, it is much harder to find and fix mistakes in the data that have been introduced by some part of your code.
+
+---
+
+## Renaming variables: In practice
+
+Let's rename `title` to `survey_title`, and `nickname` to `survey_nickname` so that both variables are clearer to the human reader.
+
+Building on the code we've already started:
+
+
+```r
+# Load the {dplyr} library
+library(dplyr)
+
+audience_data %&gt;%
+  clean_names() %&gt;%
+* rename(
+*   survey_title = title,
+*   survey_nickname = nickname
+    ) -&gt; audience_data_tidy
+```
+
+---
+
+## Renaming variables: In practice
+
+Let's check the variable names of the tidied data object `audience_data_tidy`:
+
+
+```r
+names(audience_data_tidy)
+```
+
+```
+##  [1] "survey"                 "survey_title"           "survey_nickname"       
+##  [4] "survey_start_date"      "survey_end_date"        "supplier_survey_id"    
+##  [7] "survey_url"             "survey_type"            "organisation"          
+## [10] "nso_name"               "audience"               "individual"            
+## [13] "first_name"             "last_name"              "full_name"             
+## [16] "date_of_birth"          "gender"                 "email_address"         
+## [19] "team"                   "sport"                  "role_class"            
+## [22] "address_county"         "survey_completion_date" "status"
+```
+
+
+---
+
+## Defining data types
+
+---
+
+## Subsetting to specified variables
+
+---
+
+## Subsetting by filtering observations
+
+---
+
+## Calculating summary statistics
+
+---
+
+## Creating new variables
+
+---
+
+## Reshaping data
+
+---
+class: inverse, center, middle
+
+# Activity 1:
+
+## Tidying data imported from SQL
 
 ---
 class: inverse, center, middle
@@ -188,13 +378,27 @@ class: inverse, center, middle
 ---
 class: inverse, center, middle
 
-# Activity 1:
+# Activity X:
 
 ## TBC
 
 ---
 
-## Activity 1
+## Activity X
+
+Start building a plot for your course project.
+
+At minimum, you need to:
+
+- Create a "canvas" for your plot, using the `ggplot()` function
+- Inside the `ggplot()` function, specify your data source
+- Inside the `ggplot()` function, nest the `aes()` function and define the variables you want to map to the x and y axes
+- Add a layer to your plot with an appropriate `geom_*()` for the type of plot you want to create.
+
+You may also need to:
+
+- Tidy your source data so that it is suitable for plotting (e.g., reshaping to long format, creating new variables)
+- Merge your source data (from the SQL datamart) with external data (e.g., shapefiles for making map-type plots)
 
 ---
 class: inverse, center, middle
@@ -205,9 +409,13 @@ class: inverse, center, middle
 
 ## References
 
+Bryan, J. (2015). *naming things*. Retrieved from https://speakerdeck.com/jennybc/how-to-name-files
+
 Grolemund, G. &amp; Wickham, H. (2017). *R for Data Science*. Retrieved from https://r4ds.had.co.nz/
 
 Wickham, H. (2010). A layered grammar of graphics. *Journal of Computational and Graphical Statistics*, *19*(1), 3–28. Retrieved from https://vita.had.co.nz/papers/layered-grammar.html
+
+Wickham, H. (2014). *Advanced R*. Retrieved from http://adv-r.had.co.nz/
 
 Wickham, H., Navarro, D., &amp; Pedersen, T.L. (n.d.). [*ggplot2: Elegant Graphics for Data Analysis*](https://ggplot2-book.org/).
     </textarea>
