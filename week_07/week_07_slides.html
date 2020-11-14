@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Going further with tidy data and {ggplot2}</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Going further with tidy data and {ggplot2}
+## Reproducible reporting course: Week 7
+
+---
+
+
+
+
+
+
+class: inverse, center, middle
+
+# Recapping key concepts from Week 6
+
+---
+background-image: url('images/ggplot2_masterpiece_bg.png')
+background-position: center
+background-size: contain
+
+## Introduction to {ggplot2}
+
+.pull-left[
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;br /&gt;
+&lt;small&gt;Image credit: [Allison Horst](https://github.com/allisonhorst/stats-illustrations)&lt;/small&gt;
+]
+
+.pull-right[
+`{ggplot2}` is a powerful, flexible, and widely used R package for making plots.
+
+What makes it so useful is that it is based on a **layered grammar of graphics**, "a coherent system for describing and building graphs" [(Grolemund &amp; Wickham, 2017)](https://r4ds.had.co.nz/data-visualisation.html#introduction-1).
+
+The grammar of graphics defines a logic for what makes up a plot and how data is mapped to aesthetic features.
+
+&lt;small&gt;Note: The `gg` in `{ggplot2}` stands for **g**rammar of **g**raphics!&lt;/small&gt;
+]
+
+---
+
+## Layered grammar of graphics
+
+As described by [Wickham (2010)](https://vita.had.co.nz/papers/layered-grammar.html), take a set of graphical elements...
+
+&lt;center&gt;&lt;img src="images/lgog_fig1.png"&gt;&lt;/center&gt;
+
+---
+
+## Layered grammar of graphics
+
+...then layer the elements on top of one another to produce a plot.
+
+&lt;center&gt;&lt;img src="images/lgog_fig2.png"&gt;&lt;/center&gt;
+
+---
+background-image: url('images/glen-carrie-J-PYjAqd2HU-unsplash_bg.jpg')
+background-position: center
+background-size: contain    
+
+## An analogy: Painting and {ggplot2}
+
+Imagine a simplified process for painting:
+
+--
+
+- You have something to paint on (e.g., a canvas),
+
+--
+
+- You have a rough idea of what you want the finished piece to look like, and
+
+--
+
+- You paint in layers from background to foreground.
+
+&lt;br /&gt;
+
+--
+
+When building plots with `{ggplot2}`:
+
+- Your "canvas" is the plotting area and coordinate system,
+
+--
+
+- You have a type of plot in mind (e.g., a bar plot, one colour per group), and
+
+--
+
+- You write code for each plot layer in order, from background to foreground.
+
+&lt;small&gt;Image credit: [Glen Carrie](https://unsplash.com/photos/J-PYjAqd2HU)&lt;/small&gt;
+
+---
+class: inverse, center, middle
+
+# Recap: Tidy data principles
+
+---
+
+## Tidy data and {ggplot2}
+
+`{ggplot2}` is part of the `{tidyverse}` set of packages, so it is designed to work well with other R packages that adhere to tidy data principles.
+
+--
+
+`{ggplot2}` works best with **tidy data** that is in **long format**.
+
+---
+
+## Remind me...what is tidy data?
+
+Data is tidy when:
+
+- Columns are variables,
+
+--
+
+- Rows are observations, and
+
+--
+
+- Every row is at a consistent level of observation.
+
+---
+
+## What is long data?
+
+Data is long when factor levels are stored within a column, and observation values are stored in a separate column [(Harrison &amp; Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
+
+---
+class: inverse, center, middle
+
+# Common plots used by Knowledge Edge
+
+## Bar plots
+
+---
+
+## Examples from NZAJ reports
+
+
+---
+class: inverse, center, middle
+
+# Common plots used by Knowledge Edge
+
+## Box-and-whisker plots
+
+---
+
+## Examples from NZAJ reports
+
+
+---
+class: inverse, center, middle
+
+# Common plots used by Knowledge Edge
+
+## Jitter plots
+
+---
+
+## Examples from NZAJ reports
+
+
+---
+class: inverse, center, middle
+
+# Activity 1:
+
+## TBC
+
+---
+
+## Activity 1
+
+---
+class: inverse, center, middle
+
+# All done for Week 7 - Kei runga noa atu koe!
+
+---
+
+## References
+
+Grolemund, G. &amp; Wickham, H. (2017). *R for Data Science*. Retrieved from https://r4ds.had.co.nz/
+
+Wickham, H. (2010). A layered grammar of graphics. *Journal of Computational and Graphical Statistics*, *19*(1), 3–28. Retrieved from https://vita.had.co.nz/papers/layered-grammar.html
+
+Wickham, H., Navarro, D., &amp; Pedersen, T.L. (n.d.). [*ggplot2: Elegant Graphics for Data Analysis*](https://ggplot2-book.org/).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false,
+"ratio": "16:9"
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
