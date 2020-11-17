@@ -176,9 +176,7 @@ Based on guidance from [Bryan (2015)](https://speakerdeck.com/jennybc/how-to-nam
 
 ## Renaming variables: Example
 
-Let's import data from SQL into R.
-
-Read through the code below - can you identify the SQL object that is being imported? What information might be stored in this SQL object? 
+Let's import data from SQL into R. What SQL object is imported by this code?
 
 ```{r import_vw_audience_p2p, cache = TRUE}
 
@@ -193,13 +191,45 @@ con <- odbcConnect(
 
 # Read data into R
 audience_data <- sqlQuery(
-  con,
-  "SELECT * FROM [CME_HPSNZ].[survey].[vw_audience_p2p]")
+  con, "SELECT * FROM [CME_HPSNZ].[survey].[vw_audience_p2p]")
 
 # Close the ODBC connection
 odbcClose(con)
 
 ```
+
+
+---
+
+## Renaming variables: Example
+
+Let's import data from SQL into R. What SQL object is imported by this code?
+
+```{r eval = FALSE}
+
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con <- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+audience_data <- sqlQuery( #<<
+  con, "SELECT * FROM [CME_HPSNZ].[survey].[vw_audience_p2p]") #<<
+
+# Close the ODBC connection
+odbcClose(con)
+
+```
+
+Data in the SQL object `survey.vw_audience_p2p` is imported into an R object called `audience_data`.
+
+--
+
+Do you recall what info is stored in this SQL object? [If not, check the slides from Week 3!](https://ks.sportnzgroup.org.nz/site/ke/ref/2020_K4T_Reproducible_Reports_Week_03_Content.ppsx?Web=1)
 
 ---
 
