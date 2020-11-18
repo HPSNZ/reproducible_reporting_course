@@ -4,6 +4,8 @@
     <title>Going further with tidy data and {ggplot2}</title>
     <meta charset="utf-8" />
     <script src="libs/header-attrs/header-attrs.js"></script>
+    <script src="libs/kePrint/kePrint.js"></script>
+    <link href="libs/lightable/lightable.css" rel="stylesheet" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
   </head>
   <body>
@@ -104,7 +106,7 @@ So far, we've learned about **what** tidy data is. This week, we'll focus on **h
 Some common data tidying tasks include:
 
 - Renaming variables
-- Defining data types
+- Defining data classes
 - Creating subsets that include only specified variables
 - Creating subsets by filtering observations
 - Calculating summary statistics
@@ -200,7 +202,7 @@ Data in the SQL object `survey.vw_audience_p2p` is imported into an R object cal
 
 --
 
-Do you recall what info is stored in this SQL object? [If not, check the slides from Week 3!](https://ks.sportnzgroup.org.nz/site/ke/ref/2020_K4T_Reproducible_Reports_Week_03_Content.ppsx?Web=1)
+Do you recall what info is stored in this SQL object? [If not, click here to check the slides from Week 3!](https://ks.sportnzgroup.org.nz/site/ke/ref/2020_K4T_Reproducible_Reports_Week_03_Content.ppsx?Web=1)
 
 ---
 
@@ -239,15 +241,30 @@ Which variable names do not adhere to our key naming principles? (*machine-reada
 
 There are a handful of variables that don't adhere to the naming principles: `Date_of_Birth`, `Gender`, `Email_Address`, `Address_County`. You might also see `title` and `nickname` as ambiguous names.
 
-We can use the `{janitor}` package to efficiently clean up variable names. The `clean_names()` function modifies variable names so they are *machine-readable* and *in snake case*.
+
+```
+## [1] "Date_of_Birth"  "Gender"         "Email_Address"  "Address_County"
+## [5] "title"          "nickname"
+```
 
 ---
 
 ## Renaming variables: In practice
 
+We'll use two packages to tidy up these variable names:
+
+- The `{dplyr}` package contains a lot of super useful functions for tidying data.
+
+--
+
+- The `{janitor}` package helps to efficiently clean up variable names. The `clean_names()` function modifies variable names so they are *machine-readable* and *in snake case*.
+
+--
+
 
 ```r
-# Load the {janitor} library
+# Load libraries
+library(dplyr)
 library(janitor)
 
 # Clean up variable names using clean_names()
@@ -255,7 +272,22 @@ library(janitor)
 * clean_names() -&gt; audience_data_tidy
 ```
 
-The highlighted code above introduces two new symbols:
+--
+
+Let's take a closer look at the highlighted code!
+
+---
+
+## Renaming variables: In practice
+
+
+```r
+audience_data %&gt;%
+  clean_names() -&gt; audience_data_tidy
+```
+
+
+The code above introduces two new symbols:
 
 --
 
@@ -267,10 +299,11 @@ The highlighted code above introduces two new symbols:
 
 --
 
-Therefore, we can describe the logic of the highlighted code as:
+We could describe the logic of this code as follows:
 
 &gt; Call the object called `audience_data`, and then  
-&gt; clean up the variable names and assign the data set to a new object called `audience_data_tidy`.
+&gt; clean up the variable names (with `clean_names()`)  
+&gt; and assign the data set to a new object called `audience_data_tidy`.
 
 ---
 
@@ -287,11 +320,11 @@ audience_data %&gt;%
 
 --
 
-It is good practice to **never overwrite the raw data**. Remember that this is a cornerstone of reproducible research: other people should be able to use the same raw data and apply the same computational steps to reach the same outcome that you achieve.
+It is good practice to **never overwrite the raw data**. This is a cornerstone of reproducible research: other people should be able to use the same raw data and apply the same computational steps to reach the same outcome that you achieve.
 
 --
 
-If new work is saved over a raw data set, it is much harder to find and fix mistakes in the data that have been introduced by some part of your code.
+If new work is saved over a raw data set, it becomes much harder to find and fix mistakes in the data that may have been introduced by some step(s) in the code.
 
 ---
 
@@ -299,13 +332,12 @@ If new work is saved over a raw data set, it is much harder to find and fix mist
 
 Let's rename `title` to `survey_title`, and `nickname` to `survey_nickname` so that both variables are clearer to the human reader.
 
-Building on the code we've already started:
+--
+
+We build on the code we've already started, by adding another `%&gt;%` pipe operator and the `rename()` function, from the `{dplyr}` package:
 
 
 ```r
-# Load the {dplyr} library
-library(dplyr)
-
 audience_data %&gt;%
   clean_names() %&gt;%
 * rename(
@@ -313,6 +345,10 @@ audience_data %&gt;%
 *   survey_nickname = nickname
     ) -&gt; audience_data_tidy
 ```
+
+--
+
+Inside the `rename()` function, we list the variables we want to rename, in the form of `new_variable_name = original_variable_name`. Use commas when renaming 2 or more variables.
 
 ---
 
@@ -325,6 +361,9 @@ Let's check the variable names of the tidied data object `audience_data_tidy`:
 names(audience_data_tidy)
 ```
 
+--
+
+
 ```
 ##  [1] "survey"                 "survey_title"           "survey_nickname"       
 ##  [4] "survey_start_date"      "survey_end_date"        "supplier_survey_id"    
@@ -336,18 +375,1012 @@ names(audience_data_tidy)
 ## [22] "address_county"         "survey_completion_date" "status"
 ```
 
+Ta da!
 
 ---
 
-## Defining data types
+## Defining data classes: Concepts
+
+When working data in R that has been imported from the Learning datamart, you will most commonly encounter the following classes of data:
+
+- **Character:** Character strings (e.g., some text).
+
+--
+
+- **Numeric:** Numbers, either whole numbers or decimals.
+
+--
+
+- **Integer:** Whole numbers.
+
+--
+
+- **Logical:** A binary class with two possible values: `TRUE` or `FALSE`.
+
+--
+
+- **Factor:** Categorical data; can be nominal (no particular order) or ordinal (ordered).
+
+---
+
+## Defining data classes: Concepts
+
+.pull-left[
+Why does it matter that data is correctly classified? We want to analyse the data we work with; in Knowledge Edge work, a few common analytical tasks include:
+
+- Counting things
+- Calculating summary statistics (e.g., median, interquartile range, mean, standard deviation)
+- Analysing data in sub-groups (i.e., in categories)
+]
+
+--
+
+.pull-right[
+Let's look at an example by revisiting the `ToothGrowth` data set:
+
+&lt;div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:300px; overflow-x: scroll; width:300px; "&gt;&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; len &lt;/th&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; supp &lt;/th&gt;
+   &lt;th style="text-align:right;position: sticky; top:0; background-color: #FFFFFF;"&gt; dose &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 4.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 6.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 11.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 5.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 7.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 22.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 13.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 18.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 33.9 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 25.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 32.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 21.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 29.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; VC &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 15.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 21.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 17.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 10.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 8.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 16.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 9.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 19.7 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.6 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 20.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 25.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 25.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 21.2 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 14.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 27.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 25.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 22.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 24.5 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 24.8 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 30.9 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 26.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 27.3 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 29.4 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:right;"&gt; 23.0 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; OJ &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 2.0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+]
+
+---
+
+## Defining data classes: Example
+
+We can use the `str()` function to check the structure of the `ToothGrowth` data set:
+
+
+```r
+str(ToothGrowth)
+```
+
+```
+## 'data.frame':	60 obs. of  3 variables:
+##  $ len : num  4.2 11.5 7.3 5.8 6.4 10 11.2 11.2 5.2 7 ...
+##  $ supp: Factor w/ 2 levels "OJ","VC": 2 2 2 2 2 2 2 2 2 2 ...
+##  $ dose: num  0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5 ...
+```
+
+--
+
+- The variable `len` is numeric (`num`),
+- The variable `supp` is a factor (`Factor`), and
+- The variable `dose` is numeric (`num`).
+
+--
+
+We can also check the data class of specific variables in a data frame, like so:
+
+
+```r
+# Try these out, one at a time, in your R console
+class(ToothGrowth$len)
+class(ToothGrowth$supp)
+class(ToothGrowth$dose)
+```
+
+---
+
+## Defining data classes: Example
+
+What happens if we try to calculate the `sum()` of values in the variable `len`?
+
+
+```r
+sum(ToothGrowth$len)
+```
+
+```
+## [1] 1128.8
+```
+
+The sum total of tooth growth was about 1129 mm. Neat!
+
+---
+
+## Defining data classes: Example
+
+Now let's try to sum the values in the variable `supp`:
+
+
+```r
+sum(ToothGrowth$supp)
+```
+
+--
+
+**Uh oh!** We get an error that tells us:
+
+`Error in Summary.factor(c(2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, : ‘sum’ not meaningful for factors`
+
+--
+
+We can't calculate the sum of the values in `supp`, because `supp` is a factor variable. That is, it contains information about categories. (In this case, `supp` is a factor with 2 levels that represent supplement types: `OJ` for orange juice and `VC` for vitamin C supplements.)
+
+It's not possible to calculate the sum of categories!
+
+---
+
+## Defining data classes: Example
+
+What if we change one of the `numeric` variables into a different data class, say a `character` variable?
+
+--
+
+We could do this by using the base R function `as.character()`. The code below is attempting to calculate the `sum()` of values in `len`, treating `len` as a `character` data class.
+
+
+```r
+sum(as.character(ToothGrowth$len))
+```
+
+--
+
+We get another error, because the values inside `len` are not being interpreted as numbers:
+
+`Error in sum(as.character(ToothGrowth$len)) :`  
+`  invalid 'type' (character) of argument`
+
+--
+
+This shows us that:
+
+- We can explicitly specify the data class for a variable, and
+- Doing so can change what functions can and can't be applied to the re-classified variable.
+
+---
+
+## Defining data classes: In practice
+
+Let's work with some data from the Learning datamart:
+
+
+```r
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con &lt;- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+days_per_week_data &lt;- sqlQuery(
+  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_survey_p2p] WHERE question_text LIKE '%Days per week in%'")
+
+# Close the ODBC connection
+odbcClose(con)
+```
+
+---
+
+## Defining data classes: In practice
+
+&lt;div style="border: 1px solid #ddd; padding: 0px; overflow-y: scroll; height:450px; overflow-x: scroll; width:1000px; "&gt;&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; question_text &lt;/th&gt;
+   &lt;th style="text-align:left;position: sticky; top:0; background-color: #FFFFFF;"&gt; response_text &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Post-secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 2 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 7 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Post-secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;&lt;/div&gt;
+
+---
+
+## Defining data classes: In practice
+
+
+```r
+class(days_per_week_data$response_text)
+```
+
+```
+## [1] "character"
+```
+
+
+```r
+unique(days_per_week_data$response_text)
+```
+
+```
+## [1] "2"   "0"   "3"   "7"   "5"   "1"   "6"   "4"   "N/A"
+```
+
+---
+
+## Defining data classes: In practice
+
+
+```r
+days_per_week_data %&gt;%
+  filter(response_text != "N/A") %&gt;%
+  mutate(
+    response_text = as.numeric(response_text)
+    ) -&gt; days_per_week_data_tidy
+```
+
+
+```r
+class(days_per_week_data_tidy$response_text)
+```
+
+```
+## [1] "numeric"
+```
 
 ---
 
 ## Subsetting to specified variables
 
+Let's use the `days_per_week_data` we imported earlier. If you've cleared your workspace and restarted your R session, here is the code to import the data again:
+
+
+```r
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con &lt;- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+days_per_week_data &lt;- sqlQuery(
+  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_survey_p2p] WHERE question_text LIKE '%Days per week in%'")
+
+# Close the ODBC connection
+odbcClose(con)
+```
+
+---
+
+## Subsetting to specified variables
+
+
+```r
+names(days_per_week_data)
+```
+
+```
+##  [1] "survey"              "title"               "nickname"           
+##  [4] "survey_type"         "audience"            "individual"         
+##  [7] "Full_name"           "first_name"          "last_name"          
+## [10] "Gender"              "sport"               "Address_County"     
+## [13] "sport_at_completion" "p2p_sport_answer"    "response"           
+## [16] "page_heading"        "question"            "question_text"      
+## [19] "question_tag"        "answer_col_text"     "answer_row_text"    
+## [22] "response_text"
+```
+
+---
+
+## Subsetting to specified variables
+
+
+```r
+days_per_week_data %&gt;%
+  select(
+    individual, nickname, sport_at_completion, question_text, response_text
+    ) -&gt; days_per_week_data_subset
+```
+
+
+```r
+names(days_per_week_data_subset)
+```
+
+```
+## [1] "individual"          "nickname"            "sport_at_completion"
+## [4] "question_text"       "response_text"
+```
+
+
+```r
+head(days_per_week_data_subset)
+```
+
+```
+##                             individual                            nickname
+## 1 871BFC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 2 871BFC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 3 871BFC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 4 871BFC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 5 2E27FC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 6 0FDF262E-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+##   sport_at_completion
+## 1       Cycling Track
+## 2       Cycling Track
+## 3       Cycling Track
+## 4       Cycling Track
+## 5        Canoe Sprint
+## 6             Sailing
+##                                                                                      question_text
+## 1        13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level
+## 2 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Post-secondary school level
+## 3      13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level
+## 4   13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level
+## 5        13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level
+## 6        13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level
+##   response_text
+## 1             2
+## 2             0
+## 3             0
+## 4             2
+## 5             3
+## 6             2
+```
+
 ---
 
 ## Subsetting by filtering observations
+
+Let's use the `days_per_week_data` we imported earlier. If you've cleared your workspace and restarted your R session, here is the code to import the data again:
+
+
+```r
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con &lt;- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+days_per_week_data &lt;- sqlQuery(
+  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_survey_p2p] WHERE question_text LIKE '%Days per week in%'")
+
+# Close the ODBC connection
+odbcClose(con)
+```
+
+---
+
+## Subsetting by filtering observations
+
+
+```r
+unique(days_per_week_data$sport_at_completion)
+```
+
+```
+##  [1] "Cycling Track"         "Canoe Sprint"          "Sailing"              
+##  [4] "Snowboard"             "Athletics"             "Cycling BMX"          
+##  [7] "Swimming"              "Netball"               "Triathlon"            
+## [10] "Rowing"                "Equestrian"            "Football"             
+## [13] "Hockey_W"              "Hockey_M"              "Rugby"                
+## [16] "Freestyle Skiing"      "Athletics - Para"      "Swimming - Para"      
+## [19] "Cycling Mountain Bike" "Cycling - Para"        "Cycling Road"
+```
+
+
+```r
+days_per_week_data %&gt;%
+  select(individual, nickname, sport_at_completion, question_text, response_text) %&gt;%
+  filter(
+    sport_at_completion == "Triathlon"
+    ) -&gt; days_per_week_data_triathlon
+```
+
+
+```r
+head(days_per_week_data_triathlon)
+```
+
+```
+##                             individual                            nickname
+## 1 D70C522E-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 2 5127FC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 3 7F0C522E-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 4 5127FC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 5 4927FC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 6 D70C522E-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+##   sport_at_completion
+## 1           Triathlon
+## 2           Triathlon
+## 3           Triathlon
+## 4           Triathlon
+## 5           Triathlon
+## 6           Triathlon
+##                                                                                    question_text
+## 1 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level
+## 2      13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level
+## 3 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level
+## 4 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level
+## 5 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level
+## 6      13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level
+##   response_text
+## 1             3
+## 2             3
+## 3             3
+## 4             2
+## 5             5
+## 6             5
+```
+
+---
+
+## Subsetting by filtering observations
+
+
+```r
+unique(days_per_week_data$nickname)
+```
+
+```
+## [1] "2015_P2P_Foundation_Survey_Intake01" "2015_P2P_Foundation_Survey_Intake02"
+```
+
+
+
+```r
+library(stringr)
+
+days_per_week_data %&gt;%
+  select(individual, nickname, sport_at_completion, question_text, response_text) %&gt;%
+  filter(str_detect(nickname, "Intake01")) -&gt; days_per_week_intake01
+```
+
+
+```r
+unique(days_per_week_intake01$nickname)
+```
+
+```
+## [1] "2015_P2P_Foundation_Survey_Intake01"
+```
+
+
+
+```r
+head(days_per_week_intake01)
+```
+
+```
+##                             individual                            nickname
+## 1 871BFC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 2 871BFC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 3 871BFC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 4 871BFC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 5 2E27FC2D-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+## 6 0FDF262E-F4C8-E711-8421-00215AD0F1F6 2015_P2P_Foundation_Survey_Intake01
+##   sport_at_completion
+## 1       Cycling Track
+## 2       Cycling Track
+## 3       Cycling Track
+## 4       Cycling Track
+## 5        Canoe Sprint
+## 6             Sailing
+##                                                                                      question_text
+## 1        13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level
+## 2 13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Post-secondary school level
+## 3      13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Secondary school level
+## 4   13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Intermediate school level
+## 5        13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level
+## 6        13_Background_Days per week in OTHER SPORTS (not your carded sport)?_Primary school level
+##   response_text
+## 1             2
+## 2             0
+## 3             0
+## 4             2
+## 5             3
+## 6             2
+```
+
 
 ---
 
