@@ -33,6 +33,7 @@ style_duo_accent(
   code_font_google = google_font("Fira Code", "500"),
   text_font_size = "1.1rem",
   code_font_size = "0.8rem",
+  code_inline_color = "#d600b9",
   link_color = "#fc530e"
 )
 
@@ -130,7 +131,7 @@ So far, we've learned about **what** tidy data is. This week, we'll focus on **h
 Some common data tidying tasks include:
 
 - Renaming variables
-- Defining data types
+- Defining data classes
 - Creating subsets that include only specified variables
 - Creating subsets by filtering observations
 - Calculating summary statistics
@@ -176,9 +177,7 @@ Based on guidance from [Bryan (2015)](https://speakerdeck.com/jennybc/how-to-nam
 
 ## Renaming variables: Example
 
-Let's import data from SQL into R.
-
-Read through the code below - can you identify the SQL object that is being imported? What information might be stored in this SQL object? 
+Let's import data from SQL into R. What SQL object is imported by this code?
 
 ```{r import_vw_audience_p2p, cache = TRUE}
 
@@ -193,13 +192,45 @@ con <- odbcConnect(
 
 # Read data into R
 audience_data <- sqlQuery(
-  con,
-  "SELECT * FROM [CME_HPSNZ].[survey].[vw_audience_p2p]")
+  con, "SELECT * FROM [CME_HPSNZ].[survey].[vw_audience_p2p]")
 
 # Close the ODBC connection
 odbcClose(con)
 
 ```
+
+
+---
+
+## Renaming variables: Example
+
+Let's import data from SQL into R. What SQL object is imported by this code?
+
+```{r eval = FALSE}
+
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con <- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+audience_data <- sqlQuery( #<<
+  con, "SELECT * FROM [CME_HPSNZ].[survey].[vw_audience_p2p]") #<<
+
+# Close the ODBC connection
+odbcClose(con)
+
+```
+
+Data in the SQL object `survey.vw_audience_p2p` is imported into an R object called `audience_data`.
+
+--
+
+Do you recall what info is stored in this SQL object? [If not, click here to check the slides from Week 3!](https://ks.sportnzgroup.org.nz/site/ke/ref/2020_K4T_Reproducible_Reports_Week_03_Content.ppsx?Web=1)
 
 ---
 
@@ -233,15 +264,34 @@ Which variable names do not adhere to our key naming principles? (*machine-reada
 
 There are a handful of variables that don't adhere to the naming principles: `Date_of_Birth`, `Gender`, `Email_Address`, `Address_County`. You might also see `title` and `nickname` as ambiguous names.
 
-We can use the `{janitor}` package to efficiently clean up variable names. The `clean_names()` function modifies variable names so they are *machine-readable* and *in snake case*.
+```{r, echo = FALSE, message = FALSE}
+
+library(dplyr)
+
+audience_data %>%
+  select(Date_of_Birth, Gender, Email_Address, Address_County, title, nickname) %>%
+  names()
+
+```
 
 ---
 
 ## Renaming variables: In practice
 
+We'll use two packages to tidy up these variable names:
+
+- The `{dplyr}` package contains a lot of super useful functions for tidying data.
+
+--
+
+- The `{janitor}` package helps to efficiently clean up variable names. The `clean_names()` function modifies variable names so they are *machine-readable* and *in snake case*.
+
+--
+
 ```{r clean_names_vw_audience_p2p, message = FALSE}
 
-# Load the {janitor} library
+# Load libraries
+library(dplyr)
 library(janitor)
 
 # Clean up variable names using clean_names()
@@ -250,7 +300,23 @@ audience_data %>% #<<
 
 ```
 
-The highlighted code above introduces two new symbols:
+--
+
+Let's take a closer look at the highlighted code!
+
+---
+
+## Renaming variables: In practice
+
+```{r}
+
+audience_data %>%
+  clean_names() -> audience_data_tidy
+
+```
+
+
+The code above introduces two new symbols:
 
 --
 
@@ -262,10 +328,11 @@ The highlighted code above introduces two new symbols:
 
 --
 
-Therefore, we can describe the logic of the highlighted code as:
+We could describe the logic of this code as follows:
 
 > Call the object called `audience_data`, and then  
-> clean up the variable names and assign the data set to a new object called `audience_data_tidy`.
+> clean up the variable names (with `clean_names()`)  
+> and assign the data set to a new object called `audience_data_tidy`.
 
 ---
 
@@ -283,11 +350,11 @@ audience_data %>%
 
 --
 
-It is good practice to **never overwrite the raw data**. Remember that this is a cornerstone of reproducible research: other people should be able to use the same raw data and apply the same computational steps to reach the same outcome that you achieve.
+It is good practice to **never overwrite the raw data**. This is a cornerstone of reproducible research: other people should be able to use the same raw data and apply the same computational steps to reach the same outcome that you achieve.
 
 --
 
-If new work is saved over a raw data set, it is much harder to find and fix mistakes in the data that have been introduced by some part of your code.
+If new work is saved over a raw data set, it becomes much harder to find and fix mistakes in the data that may have been introduced by some step(s) in the code.
 
 ---
 
@@ -295,12 +362,11 @@ If new work is saved over a raw data set, it is much harder to find and fix mist
 
 Let's rename `title` to `survey_title`, and `nickname` to `survey_nickname` so that both variables are clearer to the human reader.
 
-Building on the code we've already started:
+--
 
-```{r rename_vw_audience_p2p, message = FALSE}
+We build on the code we've already started, by adding another `%>%` pipe operator and the `rename()` function, from the `{dplyr}` package:
 
-# Load the {dplyr} library
-library(dplyr)
+```{r rename_vw_audience_p2p}
 
 audience_data %>%
   clean_names() %>%
@@ -311,30 +377,405 @@ audience_data %>%
 
 ```
 
+--
+
+Inside the `rename()` function, we list the variables we want to rename, in the form of `new_variable_name = original_variable_name`. Use commas when renaming 2 or more variables.
+
 ---
 
 ## Renaming variables: In practice
 
 Let's check the variable names of the tidied data object `audience_data_tidy`:
 
-```{r}
+```{r eval = FALSE}
 
 names(audience_data_tidy)
 
 ```
 
+--
+
+```{r echo = FALSE}
+
+names(audience_data_tidy)
+
+```
+
+Ta da!
 
 ---
 
-## Defining data types
+## Defining data classes: Concepts
+
+When working data in R that has been imported from the Learning datamart, you will most commonly encounter the following classes of data:
+
+- **Character:** Character strings (e.g., some text).
+
+--
+
+- **Numeric:** Numbers, either whole numbers or decimals.
+
+--
+
+- **Integer:** Whole numbers.
+
+--
+
+- **Logical:** A binary class with two possible values: `TRUE` or `FALSE`.
+
+--
+
+- **Factor:** Categorical data; can be nominal (no particular order) or ordinal (ordered).
+
+---
+
+## Defining data classes: Concepts
+
+.pull-left[
+Why does it matter that data is correctly classified? We want to analyse the data we work with; in Knowledge Edge work, a few common analytical tasks include:
+
+- Counting things
+- Calculating summary statistics (e.g., median, interquartile range, mean, standard deviation)
+- Analysing data in sub-groups (i.e., in categories)
+]
+
+--
+
+.pull-right[
+Let's look at an example by revisiting the `ToothGrowth` data set:
+
+```{r, echo = FALSE, message = FALSE}
+
+library(kableExtra)
+
+ToothGrowth %>%
+  kbl() %>%
+  scroll_box(width = "300px", height = "300px")
+
+```
+]
+
+---
+
+## Defining data classes: Example
+
+We can use the `str()` function to check the structure of the `ToothGrowth` data set:
+
+```{r}
+
+str(ToothGrowth)
+
+```
+
+--
+
+- The variable `len` is numeric (`num`),
+- The variable `supp` is a factor (`Factor`), and
+- The variable `dose` is numeric (`num`).
+
+--
+
+We can also check the data class of specific variables in a data frame, like so:
+
+```{r, eval = FALSE}
+
+# Try these out, one at a time, in your R console
+class(ToothGrowth$len)
+class(ToothGrowth$supp)
+class(ToothGrowth$dose)
+
+```
+
+---
+
+## Defining data classes: Example
+
+What happens if we try to calculate the `sum()` of values in the variable `len`?
+
+```{r}
+
+sum(ToothGrowth$len)
+
+```
+
+The sum total of tooth growth was about `r round(sum(ToothGrowth$len), 0)` mm. Neat!
+
+---
+
+## Defining data classes: Example
+
+Now let's try to sum the values in the variable `supp`:
+
+```{r eval = FALSE}
+
+sum(ToothGrowth$supp)
+
+```
+
+--
+
+**Uh oh!** We get an error that tells us:
+
+`Error in Summary.factor(c(2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, : ‘sum’ not meaningful for factors`
+
+--
+
+We can't calculate the sum of the values in `supp`, because `supp` is a factor variable. That is, it contains information about categories. (In this case, `supp` is a factor with 2 levels that represent supplement types: `OJ` for orange juice and `VC` for vitamin C supplements.)
+
+It's not possible to calculate the sum of categories!
+
+---
+
+## Defining data classes: Example
+
+What if we change one of the `numeric` variables into a different data class, say a `character` variable?
+
+--
+
+We could do this by using the base R function `as.character()`. The code below is attempting to calculate the `sum()` of values in `len`, treating `len` as a `character` data class.
+
+```{r eval = FALSE}
+
+sum(as.character(ToothGrowth$len))
+
+```
+
+--
+
+We get another error, because the values inside `len` are not being interpreted as numbers:
+
+`Error in sum(as.character(ToothGrowth$len)) :`  
+`  invalid 'type' (character) of argument`
+
+--
+
+This shows us that:
+
+- We can explicitly specify the data class for a variable, and
+- Doing so can change what functions can and can't be applied to the re-classified variable.
+
+---
+
+## Defining data classes: In practice
+
+Let's work with some data from the Learning datamart:
+
+```{r import_vw_survey_p2p, cache = TRUE}
+
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con <- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+days_per_week_data <- sqlQuery(
+  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_survey_p2p] WHERE question_text LIKE '%Days per week in%'")
+
+# Close the ODBC connection
+odbcClose(con)
+
+```
+
+---
+
+## Defining data classes: In practice
+
+```{r, echo = FALSE, message = FALSE}
+
+days_per_week_data %>%
+  head(n = 50) %>%
+  select(question_text, response_text) %>%
+  kbl() %>%
+  scroll_box(width = "1000px", height = "450px")
+
+```
+
+---
+
+## Defining data classes: In practice
+
+```{r}
+
+class(days_per_week_data$response_text)
+
+```
+
+```{r}
+
+unique(days_per_week_data$response_text)
+
+```
+
+---
+
+## Defining data classes: In practice
+
+```{r}
+
+days_per_week_data %>%
+  filter(response_text != "N/A") %>%
+  mutate(
+    response_text = as.numeric(response_text)
+    ) -> days_per_week_data_tidy
+
+```
+
+```{r}
+
+class(days_per_week_data_tidy$response_text)
+
+```
 
 ---
 
 ## Subsetting to specified variables
 
+Let's use the `days_per_week_data` we imported earlier. If you've cleared your workspace and restarted your R session, here is the code to import the data again:
+
+```{r eval = FALSE}
+
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con <- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+days_per_week_data <- sqlQuery(
+  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_survey_p2p] WHERE question_text LIKE '%Days per week in%'")
+
+# Close the ODBC connection
+odbcClose(con)
+
+```
+
+---
+
+## Subsetting to specified variables
+
+```{r}
+
+names(days_per_week_data)
+
+```
+
+---
+
+## Subsetting to specified variables
+
+```{r}
+
+days_per_week_data %>%
+  select(
+    individual, nickname, sport_at_completion, question_text, response_text
+    ) -> days_per_week_data_subset
+
+```
+
+```{r}
+
+names(days_per_week_data_subset)
+
+```
+
+```{r}
+
+head(days_per_week_data_subset)
+
+```
+
 ---
 
 ## Subsetting by filtering observations
+
+Let's use the `days_per_week_data` we imported earlier. If you've cleared your workspace and restarted your R session, here is the code to import the data again:
+
+```{r eval = FALSE}
+
+# Load libraries
+library(RODBC)
+
+# Establish ODBC connection
+con <- odbcConnect(
+  "HPSNZ_Datamart",
+  uid = Sys.getenv("datamart_user"),
+  pwd = Sys.getenv("datamart_pwd"))
+
+# Read data into R
+days_per_week_data <- sqlQuery(
+  con, "SELECT * FROM [CME_HPSNZ].[report].[vw_survey_p2p] WHERE question_text LIKE '%Days per week in%'")
+
+# Close the ODBC connection
+odbcClose(con)
+
+```
+
+---
+
+## Subsetting by filtering observations
+
+```{r}
+
+unique(days_per_week_data$sport_at_completion)
+
+```
+
+```{r}
+
+days_per_week_data %>%
+  select(individual, nickname, sport_at_completion, question_text, response_text) %>%
+  filter(
+    sport_at_completion == "Triathlon"
+    ) -> days_per_week_data_triathlon
+
+```
+
+```{r}
+
+head(days_per_week_data_triathlon)
+
+```
+
+---
+
+## Subsetting by filtering observations
+
+```{r}
+
+unique(days_per_week_data$nickname)
+
+```
+
+
+```{r}
+
+library(stringr)
+
+days_per_week_data %>%
+  select(individual, nickname, sport_at_completion, question_text, response_text) %>%
+  filter(str_detect(nickname, "Intake01")) -> days_per_week_intake01
+
+```
+
+```{r}
+
+unique(days_per_week_intake01$nickname)
+
+```
+
+
+```{r}
+
+head(days_per_week_intake01)
+
+```
 
 ---
 

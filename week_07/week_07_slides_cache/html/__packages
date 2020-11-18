@@ -1,3 +1,7 @@
 base
 xaringanthemer
 RODBC
+flair
+dplyr
+janitor
+kableExtra
