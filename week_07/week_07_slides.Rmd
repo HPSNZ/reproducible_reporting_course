@@ -131,20 +131,18 @@ Data is tidy when:
 
 Data is long when factor levels are stored within a column, and observation values are stored in a separate column [(Harrison & Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
 
-<br />
-<br />
-<br />
+--
+
+This week's materials are in two parts:
+
+1. In this slidedeck, we'll focus on **how to tidy data**.
+2. In the companion slidedeck, we'll work on **creating plots that are commonly used in our NZAJ reports**.
+
 <small>Image credit: <a href="https://unsplash.com/photos/NIJuEQw0RKg" target="_blank">Iñaki del Olmo</a></small>
 
 ---
 
-## From *what* to *how*
-
-So far, we've learned about **what** tidy data is. This week, we'll focus on **how** to tidy data.
-
---
-
-Some common data tidying tasks include:
+## Common data tidying tasks
 
 - Renaming variables
 
@@ -176,7 +174,7 @@ Some common data tidying tasks include:
 
 ## Before we proceed...
 
-We will use functions from these packages: `{dplyr}`, `{tidyr}`, `{janitor}`, `{stringr}`.
+We will be using functions from these packages: `{dplyr}`, `{tidyr}`, `{janitor}`, `{stringr}`.
 
 --
 
@@ -392,7 +390,7 @@ The code above introduces two new symbols:
 
 We could describe the logic of this code as follows:
 
-> Call the object called `audience_data`, and then  
+> Call the object named `audience_data`, and then  
 > clean up the variable names (with `clean_names()`)  
 > and assign the data set to a new object called `audience_data_tidy`.
 
@@ -468,7 +466,7 @@ audience_data %>%
 
 --
 
-> Call the object called `audience_data`, and then  
+> Call the object named `audience_data`, and then  
 > clean up the variable names (with `clean_names()`), and then  
 > rename `title` to `survey_title` and `nickname` to `survey_nickname`,  
 > and assign the data set to an object called `audience_data_tidy`.
@@ -530,7 +528,7 @@ Now is a good time to:
 
 ## Defining data classes: Concepts
 
-When working data in R that has been imported from the Learning datamart, you will most commonly encounter the following classes of data:
+When working with data in R that has been imported from the Learning datamart, you will most commonly encounter the following classes of data:
 
 - **Character:** Character strings (e.g., some text).
 
@@ -617,7 +615,7 @@ To check the class of a particular variable in a dataframe, we use the `class()`
 
 ## Defining data classes: Example
 
-What happens if we try to calculate the `sum()` of values in the variable `len` (from the `ToothGrowth` data set)?
+What happens if we try to `sum()` of values in the variable `len` (from the `ToothGrowth` data set)?
 
 ```{r}
 
@@ -646,6 +644,8 @@ sum(ToothGrowth$supp)
 `Error in Summary.factor(c(2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, : ‘sum’ not meaningful for factors`
 
 We can't calculate the sum of the values in `supp`, because `supp` is a factor variable. That is, it contains information about categories. (In this case, `supp` is a factor with 2 levels that represent supplement types: `OJ` for orange juice and `VC` for vitamin C supplements.)
+
+--
 
 In short: It's not possible to calculate the sum of categories!
 
@@ -734,17 +734,130 @@ unique(days_per_week_data$question_text)
 
 ```
 
+--
+
+There are `r length(unique(days_per_week_data$question_text))` unique values in the `question_text` variable. The values are strings of characters.
+
+--
+
+R often makes good guesses when assigning data classes to variables during the data importing process, but it's still important to check!
+
+```{r}
+
+class(days_per_week_data$question_text)
+
+```
+
+--
+
+This confirms that R has defined the `question_text` variable to contain `character` values - great!
+
+---
+
+## Defining data classes: In practice
+
+Now let's identify the unique values in the `response_text` variable.
+
 ```{r}
 
 unique(days_per_week_data$response_text)
 
 ```
 
-```{r}
+--
+
+Most values in `response_text` appear to be numbers, although there is one string value: *"N/A"*.
+
+--
+
+Let's check the data class for `response_text`. **What is your intuition about the data class that R has assigned to `response_text`?**
+
+```{r, eval = FALSE}
 
 class(days_per_week_data$response_text)
 
 ```
+
+---
+
+## Defining data classes: In practice
+
+```{r }
+
+class(days_per_week_data$response_text)
+
+```
+
+Currently, R has defined `response_text` as containing `character` values. How can this be true, when there are numbers in this variable?
+
+--
+
+While most of the values are numbers, some values are the string *"N/A"*.
+
+```{r, echo = FALSE}
+
+unique(days_per_week_data$response_text)
+
+```
+
+It's possible for numbers to be expressed as `character` strings (the give-away is that the numbers listed above are encased in double-quotes, e.g., `"2"` instead of `2`). But it's not possible for character strings to be defined as `numeric` or `integer`.
+
+--
+
+Here, where `response_text` contains a mixture of `numeric` and `character` values, R defaults to assigning the more inclusive data class of `character` to this variable.
+
+---
+
+## Defining data classes: In practice
+
+We can use `filter()` from the `{dplyr}` package to exclude the "N/A" from the tidied data set:
+
+```{r days_per_week_filter, include = FALSE}
+
+days_per_week_data %>%
+  filter(response_text != "N/A") -> days_per_week_data_tidy
+
+```
+
+```{r, echo = FALSE}
+
+decorate("days_per_week_filter") %>%
+  flair('filter(response_text != "N/A")')
+
+```
+
+--
+
+The logic of the code above reads:
+
+> Call the object named `days_per_week_data`, and then  
+> apply a filter that keeps those observations where `response_text` does not equal `"N/A"`.  
+
+<small>Note: `!=` is a common symbol used in many programming languages that means *"not equal to"*.</small>
+
+---
+
+## Defining data classes: In practice
+
+Let's check that the filtering has worked as expected:
+
+```{r}
+
+unique(days_per_week_data_tidy$response_text)
+
+```
+
+--
+
+Now let's check the data class of `response_text` now that the *"N/A"* values have been filtered out:
+
+```{r}
+
+class(days_per_week_data_tidy$response_text)
+
+```
+
+The data class is still showing `character`. That's because, while we've excluded *"N/A"* values, we haven't explicitly re-defined the data class for `response_text`.
 
 ---
 
