@@ -20,6 +20,8 @@ knitr::opts_chunk$set(
   dpi = 300,
   fig.retina = 3)
 
+library(flair)
+
 ```
 
 ```{r xaringan-themer, include=FALSE, warning=FALSE}
@@ -30,7 +32,7 @@ style_duo_accent(
   secondary_color = "#215e6b",
   inverse_header_color = "#FFFFFF",
   header_font_google = google_font("Overpass"),
-  code_font_google = google_font("Fira Code", "500"),
+  # code_font_google = google_font("Fira Code", "500"),
   text_font_size = "1.1rem",
   code_font_size = "0.8rem",
   code_inline_color = "#d600b9",
@@ -106,13 +108,18 @@ knitr::include_graphics("images/lgog_fig2.png")
 ---
 class: inverse, center, middle
 
-# How to tidy data
+# Ways to tidy data
 
 ---
+background-image: url('images/inaki-del-olmo-NIJuEQw0RKg-unsplash_bg.jpg')
+background-position: center
+background-size: cover
 
 ## Tidy data and {ggplot2}
 
 `{ggplot2}` works best with **tidy data** that is in **long format**.
+
+--
 
 Data is tidy when:
 
@@ -120,7 +127,14 @@ Data is tidy when:
 - Rows are observations, and
 - Every row is at a consistent level of observation.
 
+--
+
 Data is long when factor levels are stored within a column, and observation values are stored in a separate column [(Harrison & Pius, 2020)](https://argoshare.is.ed.ac.uk/healthyr_book/reshaping-data-long-vs-wide-format.html).
+
+<br />
+<br />
+<br />
+<small>Image credit: <a href="https://unsplash.com/photos/NIJuEQw0RKg" target="_blank">Iñaki del Olmo</a></small>
 
 ---
 
@@ -128,23 +142,47 @@ Data is long when factor levels are stored within a column, and observation valu
 
 So far, we've learned about **what** tidy data is. This week, we'll focus on **how** to tidy data.
 
+--
+
 Some common data tidying tasks include:
 
 - Renaming variables
+
+--
+
 - Defining data classes
-- Creating subsets that include only specified variables
+
+--
+
+- Creating subsets by selecting specific variables
+
+--
+
 - Creating subsets by filtering observations
+
+--
+
 - Calculating summary statistics
+
+--
+
 - Creating new variables
+
+--
+
 - Reshaping data (e.g., from wide to long format)
 
 ---
 
 ## Before we proceed...
 
-We will use a mix of base R functions and functions from the `{dplyr}` and `{tidyr}`
+We will use functions from these packages: `{dplyr}`, `{tidyr}`, `{janitor}`, `{stringr}`.
 
-If you want to code along as you work through the slides, you'll need to install `{janitor}`, `{dplyr}`, `{tidyr}`.
+--
+
+If you want to code along as you work through the slides, you'll need to install these packages first.
+
+--
 
 **Do you remember how to install packages in R?** Give it a go on your own! If you need help, the code for installing these packages will display on the next slide.
 
@@ -159,23 +197,40 @@ Run the code below, one line at a time, in the R console of your R Studio sessio
 install.packages("dplyr")
 install.packages("tidyr")
 install.packages("janitor")
+install.packages("stringr")
 
 ```
+
+---
+class: inverse, center, middle
+
+# Ways to tidy data
+
+## Renaming variables
 
 ---
 
 ## Renaming variables: Concepts
 
-Based on guidance from [Bryan (2015)](https://speakerdeck.com/jennybc/how-to-name-files) and [Wickham (2014)](http://adv-r.had.co.nz/Style.html), key principles I use when naming variables (and objects!) in R:
+Based on guidance from [Bryan (2015)](https://speakerdeck.com/jennybc/how-to-name-files) and [Wickham (2014)](http://adv-r.had.co.nz/Style.html), there are a few key principles I use when naming variables (and objects!) in R:
 
 - **Machine-readable:** Avoid spaces, punctuation, accented characters, different files with very similar names.
+
+--
+
 - **Human-readable:** Include meaningful information about the file content that human readers can undersatnd.
+
+--
+
 - **In snake case:** Lower case with underscores to separate words within a name.
+
+--
+
 - **As concise as possible:** While meeting the 3 principles above! Shorter names are easier to type.
 
 ---
 
-## Renaming variables: Example
+## Renaming variables: In practice
 
 Let's import data from SQL into R. What SQL object is imported by this code?
 
@@ -202,7 +257,7 @@ odbcClose(con)
 
 ---
 
-## Renaming variables: Example
+## Renaming variables: In practice
 
 Let's import data from SQL into R. What SQL object is imported by this code?
 
@@ -234,7 +289,7 @@ Do you recall what info is stored in this SQL object? [If not, click here to che
 
 ---
 
-## Renaming variables: Example
+## Renaming variables: In practice
 
 We can check the names of variables in a data set by using the `names()` function.
 
@@ -308,13 +363,20 @@ Let's take a closer look at the highlighted code!
 
 ## Renaming variables: In practice
 
-```{r}
+```{r new_tidy_things, include = FALSE}
 
 audience_data %>%
   clean_names() -> audience_data_tidy
 
 ```
 
+```{r, echo = FALSE}
+
+decorate("new_tidy_things") %>%
+  flair("%>%") %>%
+  flair("->")
+
+```
 
 The code above introduces two new symbols:
 
@@ -338,13 +400,19 @@ We could describe the logic of this code as follows:
 
 ## Side note: Keeping raw and tidy data separate
 
-Notice that the code calls the raw data object `audience_data`, applies a function, then stores the modified data in a new object called `audience_data_tidy`. **Why is this important?**
+Notice that the code right-assigns the modified data frame to a new object called `audience_data_tidy`. **Why is this important?**
 
-```{r, eval = FALSE}
+```{r separate_raw_and_tidy, include = FALSE}
 
-# Clean up variable names using clean_names()
 audience_data %>%
   clean_names() -> audience_data_tidy
+
+```
+
+```{r, echo = FALSE}
+
+decorate("separate_raw_and_tidy") %>%
+  flair("audience_data_tidy")
 
 ```
 
@@ -364,7 +432,7 @@ Let's rename `title` to `survey_title`, and `nickname` to `survey_nickname` so t
 
 --
 
-We build on the code we've already started, by adding another `%>%` pipe operator and the `rename()` function, from the `{dplyr}` package:
+We can build on the code we've already started. After the `clean_names()` function, we add another `%>%` pipe operator. This allows us to "add" the `rename()` function, from the `{dplyr}` package, into our data tidying pipeline:
 
 ```{r rename_vw_audience_p2p}
 
@@ -380,6 +448,30 @@ audience_data %>%
 --
 
 Inside the `rename()` function, we list the variables we want to rename, in the form of `new_variable_name = original_variable_name`. Use commas when renaming 2 or more variables.
+
+---
+
+## Renaming variables: In practice
+
+Now, the logic of the code reads:
+
+```{r eval = FALSE}
+
+audience_data %>%
+  clean_names() %>%
+  rename(
+    survey_title = title,
+    survey_nickname = nickname
+    ) -> audience_data_tidy
+
+```
+
+--
+
+> Call the object called `audience_data`, and then  
+> clean up the variable names (with `clean_names()`), and then  
+> rename `title` to `survey_title` and `nickname` to `survey_nickname`,  
+> and assign the data set to an object called `audience_data_tidy`.
 
 ---
 
@@ -401,7 +493,38 @@ names(audience_data_tidy)
 
 ```
 
-Ta da!
+Ta da! Now all the variable names are *machine-readable*, *human-readable*, *in snake case*, and *as concise as possible*.
+
+---
+class: inverse, center, middle
+
+# Ways to tidy data
+
+## Defining data classes
+
+---
+background-image: url('images/lego-568039_1920_bg.jpg')
+background-position: center
+background-size: cover
+
+## Psst...are you coding along?
+
+Now is a good time to:
+
+- Clear your workspace
+- Restart your R session
+
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<br />
+<small>Image credit: <a href="https://pixabay.com/photos/lego-legomaennchen-males-workers-568039/" target="_blank">blickpixel</a></small>
 
 ---
 
@@ -473,7 +596,9 @@ str(ToothGrowth)
 - The variable `supp` is a factor (`Factor`), and
 - The variable `dose` is numeric (`num`).
 
---
+---
+
+## Defining data classes: Example
 
 We can also check the data class of specific variables in a data frame, like so:
 
@@ -486,11 +611,13 @@ class(ToothGrowth$dose)
 
 ```
 
+To check the class of a particular variable in a dataframe, we use the `class()` function with the argument within taking the form of `data_frame_object$variable_name`.
+
 ---
 
 ## Defining data classes: Example
 
-What happens if we try to calculate the `sum()` of values in the variable `len`?
+What happens if we try to calculate the `sum()` of values in the variable `len` (from the `ToothGrowth` data set)?
 
 ```{r}
 
@@ -518,11 +645,9 @@ sum(ToothGrowth$supp)
 
 `Error in Summary.factor(c(2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, 2L, : ‘sum’ not meaningful for factors`
 
---
-
 We can't calculate the sum of the values in `supp`, because `supp` is a factor variable. That is, it contains information about categories. (In this case, `supp` is a factor with 2 levels that represent supplement types: `OJ` for orange juice and `VC` for vitamin C supplements.)
 
-It's not possible to calculate the sum of categories!
+In short: It's not possible to calculate the sum of categories!
 
 ---
 
@@ -584,29 +709,40 @@ odbcClose(con)
 
 ## Defining data classes: In practice
 
+Use `View(days_per_week_data)` to visually inspect the imported data. Alternatively, scroll through the table below, which displays all values in the variables `question_text` and `response_text`.
+
 ```{r, echo = FALSE, message = FALSE}
 
 days_per_week_data %>%
-  head(n = 50) %>%
   select(question_text, response_text) %>%
   kbl() %>%
-  scroll_box(width = "1000px", height = "450px")
+  scroll_box(width = "1000px", height = "350px") 
 
 ```
 
+**What do you notice?**
+ 
 ---
 
 ## Defining data classes: In practice
 
+Let's use the `unique()` function to identify the unique values within the `question_text` variable.
+
 ```{r}
 
-class(days_per_week_data$response_text)
+unique(days_per_week_data$question_text)
 
 ```
 
 ```{r}
 
 unique(days_per_week_data$response_text)
+
+```
+
+```{r}
+
+class(days_per_week_data$response_text)
 
 ```
 
@@ -631,8 +767,15 @@ class(days_per_week_data_tidy$response_text)
 ```
 
 ---
+class: inverse, center, middle
 
-## Subsetting to specified variables
+# Ways to tidy data
+
+## Subsetting to selected variables
+
+---
+
+## Subsetting to selected variables
 
 Let's use the `days_per_week_data` we imported earlier. If you've cleared your workspace and restarted your R session, here is the code to import the data again:
 
@@ -658,7 +801,7 @@ odbcClose(con)
 
 ---
 
-## Subsetting to specified variables
+## Subsetting to selected variables
 
 ```{r}
 
@@ -668,7 +811,7 @@ names(days_per_week_data)
 
 ---
 
-## Subsetting to specified variables
+## Subsetting to selected variables
 
 ```{r}
 
@@ -690,6 +833,13 @@ names(days_per_week_data_subset)
 head(days_per_week_data_subset)
 
 ```
+
+---
+class: inverse, center, middle
+
+# Ways to tidy data
+
+## Subsetting by filtering observations
 
 ---
 
@@ -778,12 +928,33 @@ head(days_per_week_intake01)
 ```
 
 ---
+class: inverse, center, middle
+
+# Ways to tidy data
 
 ## Calculating summary statistics
 
 ---
 
+## Calculating summary statistics
+
+---
+class: inverse, center, middle
+
+# Ways to tidy data
+
 ## Creating new variables
+
+---
+
+## Creating new variables
+
+---
+class: inverse, center, middle
+
+# Ways to tidy data
+
+## Reshaping data
 
 ---
 
@@ -792,75 +963,7 @@ head(days_per_week_intake01)
 ---
 class: inverse, center, middle
 
-# Activity 1:
-
-## Tidying data imported from SQL
-
----
-class: inverse, center, middle
-
-# Common plots used by Knowledge Edge
-
-## Bar plots
-
----
-
-## Examples from NZAJ reports
-
-
----
-class: inverse, center, middle
-
-# Common plots used by Knowledge Edge
-
-## Box-and-whisker plots
-
----
-
-## Examples from NZAJ reports
-
-
----
-class: inverse, center, middle
-
-# Common plots used by Knowledge Edge
-
-## Jitter plots
-
----
-
-## Examples from NZAJ reports
-
-
----
-class: inverse, center, middle
-
-# Activity X:
-
-## TBC
-
----
-
-## Activity X
-
-Start building a plot for your course project.
-
-At minimum, you need to:
-
-- Create a "canvas" for your plot, using the `ggplot()` function
-- Inside the `ggplot()` function, specify your data source
-- Inside the `ggplot()` function, nest the `aes()` function and define the variables you want to map to the x and y axes
-- Add a layer to your plot with an appropriate `geom_*()` for the type of plot you want to create.
-
-You may also need to:
-
-- Tidy your source data so that it is suitable for plotting (e.g., reshaping to long format, creating new variables)
-- Merge your source data (from the SQL datamart) with external data (e.g., shapefiles for making map-type plots)
-
----
-class: inverse, center, middle
-
-# All done for Week 7 - Kei runga noa atu koe!
+# Next up for Week 7 - common plots used in Knowledge Edge work!
 
 ---
 
