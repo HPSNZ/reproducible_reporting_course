@@ -106,10 +106,7 @@ Data is long when factor levels are stored within a column, and observation valu
 
 --
 
-This week's materials are in two parts:
-
-1. In this slidedeck, we'll focus on **how to tidy data**.
-2. In the companion slidedeck, we'll work on **creating plots that are commonly used in our NZAJ reports**.
+The Week 7 materials focus on **how to tidy data**. We'll build on these data tidying skills next week, when we'll look at how to **create plots that are commonly used in Knowledge Edge / NZAJ reports**.
 
 &lt;small&gt;Image credit: &lt;a href="https://unsplash.com/photos/NIJuEQw0RKg" target="_blank"&gt;Iñaki del Olmo&lt;/a&gt;&lt;/small&gt;
 
@@ -142,6 +139,10 @@ This week's materials are in two parts:
 --
 
 - Reshaping data (e.g., from wide to long format)
+
+--
+
+- Merging data frames together
 
 ---
 
@@ -312,6 +313,7 @@ We'll use two packages to tidy up these variable names:
 
 --
 
+.pull-left[
 
 ```r
 # Load libraries
@@ -323,9 +325,12 @@ library(janitor)
 * clean_names() -&gt; audience_data_tidy
 ```
 
---
-
 Let's take a closer look at the highlighted code!
+]
+
+.pull-right[
+&lt;img src="images/janitor_clean_names.png" width="85%" /&gt;
+]
 
 ---
 
@@ -352,7 +357,7 @@ We could describe the logic of this code as follows:
 
 &gt; Call the object named `audience_data`, and then  
 &gt; clean up the variable names (with `clean_names()`)  
-&gt; and assign the data set to a new object called `audience_data_tidy`.
+&gt; and assign the tidied data set to a new object called `audience_data_tidy`.
 
 ---
 
@@ -418,7 +423,7 @@ audience_data %&gt;%
 &gt; Call the object named `audience_data`, and then  
 &gt; clean up the variable names (with `clean_names()`), and then  
 &gt; rename `title` to `survey_title` and `nickname` to `survey_nickname`,  
-&gt; and assign the data set to an object called `audience_data_tidy`.
+&gt; and assign the tidied data set to an object called `audience_data_tidy`.
 
 ---
 
@@ -5054,7 +5059,8 @@ We can use `filter()` from the `{dplyr}` package to exclude the "N/A" from the t
 The logic of the code above reads:
 
 &gt; Call the object named `days_per_week_data`, and then  
-&gt; apply a filter that keeps those observations where `response_text` does not equal `"N/A"`.  
+&gt; apply a filter that keeps observations where `response_text` does not equal `"N/A"`  
+&gt; and assign the tidied data set to an object named `days_per_week_data_tidy`.
 
 &lt;small&gt;Note: `!=` is a common symbol used in many programming languages that means *"not equal to"*.&lt;/small&gt;
 
@@ -5075,6 +5081,12 @@ unique(days_per_week_data_tidy$response_text)
 
 --
 
+We've listed the unique values that now exist in `response_text`, within the tidied data set. The list no longer includes *"N/A"*.
+
+---
+
+## Defining data classes: In practice
+
 Now let's check the data class of `response_text` now that the *"N/A"* values have been filtered out:
 
 
@@ -5082,11 +5094,45 @@ Now let's check the data class of `response_text` now that the *"N/A"* values ha
 class(days_per_week_data_tidy$response_text)
 ```
 
+
 ```
 ## [1] "character"
 ```
 
-The data class is still showing `character`. That's because, while we've excluded *"N/A"* values, we haven't explicitly re-defined the data class for `response_text`.
+The data class is still showing `character`!
+
+--
+
+### Confused?
+
+While we've excluded *"N/A"* values, we haven't explicitly re-defined the data class for `response_text`.
+
+---
+
+## Defining data classes: In practice
+
+Let's build on the data tidying code we've started. We use the `mutate()` function from the `{dplyr}` package to modify existing variables or create new ones.
+
+
+```r
+days_per_week_data %&gt;%
+  filter(response_text != "N/A") %&gt;%
+* mutate(
+*   response_text = as.numeric(response_text)
+    ) -&gt; days_per_week_data_tidy
+```
+
+--
+
+Inside the `mutate()` function, we list the variables we want to modify or create. In this case, we want to modify the existing variable `response_text`.
+
+--
+
+The `as.numeric()` function from base R assigns the `numeric` data class to the argument specified within the parentheses.
+
+--
+
+`as.numeric(response_text)` takes the existing information in `response_text` and classes its values as `numeric` data.
 
 ---
 
@@ -5101,14 +5147,241 @@ days_per_week_data %&gt;%
     ) -&gt; days_per_week_data_tidy
 ```
 
+The logic of the code chunk above now reads:
+
+&gt; Call the object named `days_per_week_data`, and then  
+&gt; apply a filter that keeps observations where `response_text` does not equal `"N/A"`, and then  
+&gt; modify the variable `response_text` so that it stores the existing information in `response_text` and is classed as a `numeric` variable,  
+&gt; and assign the tidied data set to an object named `days_per_week_data_tidy`.
+
+---
+
+## Defining data classes: In practice
+
+Let's check the data class for `response_text` now. **What result do you expect from running the code below?**
+
 
 ```r
 class(days_per_week_data_tidy$response_text)
 ```
 
+--
+
+
 ```
 ## [1] "numeric"
 ```
+
+--
+
+As one final check, let's see what we get when we generate a list of unique values in the tidied up `response_text` variable:
+
+
+```r
+unique(days_per_week_data_tidy$response_text)
+```
+
+```
+## [1] 2 0 3 7 5 1 6 4
+```
+
+Notice how the numbers are displayed - now *without* double quotes because these values are no longer defined as `character` class.
+
+---
+
+## Defining data classes: Useful functions
+
+The appropriate function for assigning a data class to a variable depends on what you're trying to achieve.
+
+- `as.numeric()`
+- `as.integer()`
+- `as.character()`
+- `as.logical()`
+- `factor()`
+
+--
+
+The first 4 functions listed above are useful for "converting" the data class of a variable or vector to a new data class.
+
+--
+
+The `factor()` function includes some additional arguments that allow you to precisely define the data structure of a `factor` variable you're working with.
+
+---
+
+## Defining data classes: Factors
+
+Recall that **factors are categories**.
+
+--
+
+Categorical data can be **nominal**; that is, in no particular order - for example:
+
+- Tennis
+- Basketball
+- Skateboarding
+- Archery
+- Orienteering
+
+---
+
+## Defining data classes: Factors
+
+Let's list these sports in a [vector](https://r4ds.had.co.nz/vectors.html) that we can work with as a data object in R.
+
+
+```r
+# Create a vector to list some sports
+sports &lt;- c("Tennis", "Basketball", "Skateboarding", "Archery", "Orienteering")
+
+# Check the data class of the object we've created
+class(sports)
+```
+
+```
+## [1] "character"
+```
+
+Right now, R interprets the `sports` object as containing `character` values.
+
+--
+
+&lt;small&gt;You might be familiar with the terminology of factors from prior statistics training. Here, the factor is `sports` and it contains 5 factor levels.&lt;/small&gt;
+
+---
+
+## Defining data classes: Factors
+
+Let's re-classify the object `sports` as a `factor`:
+
+
+```r
+# Create a new object that stores the values in sports, defined as factor values
+sports_reclassified &lt;- factor(sports)
+
+# Check the data class of the new object we've created
+class(sports_reclassified)
+```
+
+```
+## [1] "factor"
+```
+
+--
+
+We apply `factor()` to the object `sports` with no further details needed, because the categorical data we're working with here has no particular order.
+
+---
+
+## Defining data classes: Factors
+
+Categorical data can also be **ordinal** (ordered / ranked) - for example:
+
+- Primary school
+- Secondary school
+- Tertiary study
+
+--
+
+We could order these items in order of a student's typical progression path:
+
+1. Primary school
+2. Secondary school
+3. Tertiary study
+
+--
+
+We could also order these items from "highest" to "lowest" qualification:
+
+1. Tertiary study
+2. Secondary school
+3. Primary school
+
+---
+
+## Defining data classes: Factors
+
+Let's list the 3 education stages in a [vector](https://r4ds.had.co.nz/vectors.html).
+
+
+```r
+# Create a vector to list education levels
+education &lt;- c("Secondary school", "Primary school", "Tertiary study")
+
+# Check the data class of the object we've created
+class(education)
+```
+
+```
+## [1] "character"
+```
+
+R has defined the `education` object as containing `character` values.
+
+--
+
+
+```r
+unique(education)
+```
+
+```
+## [1] "Secondary school" "Primary school"   "Tertiary study"
+```
+
+When we list the unique values in `education`, we see the education stages in the order that we first specified them when creating the vector.
+
+---
+
+## Defining data classes: Factors
+
+Now let's organise the data in `education` so that it is a `factor` variable. We also want its **factor levels** specified in the order that students typically progress through the 3 stages:
+
+--
+
+
+```r
+# Create a new object that stores the values from education,
+# defined as an ordered factor.
+education_reclassified &lt;- factor(
+  education,
+* levels = c("Primary school",
+*            "Secondary school",
+*            "Tertiary study"))
+
+# Check the data class of the new object we've created
+class(education_reclassified)
+```
+
+```
+## [1] "factor"
+```
+
+--
+
+Success! 💪
+
+But wait! There's more...
+
+---
+
+## Defining data classes: Factors
+
+
+```r
+unique(education_reclassified)
+```
+
+```
+## [1] Secondary school Primary school   Tertiary study  
+## Levels: Primary school Secondary school Tertiary study
+```
+
+--
+
+When we check the unique values of `education_reclassified`, R lists the values in the order specified by the `levels` argument of `factor()`.
+
+Hoorah!
 
 ---
 class: inverse, center, middle
@@ -5417,6 +5690,28 @@ class: inverse, center, middle
 ---
 
 ## Reshaping data
+
+---
+class: inverse, center, middle
+
+# Ways to tidy data
+
+## Merging data frames together
+
+---
+
+## Merging data frames together
+
+---
+class: inverse, center, middle
+
+# A special case
+
+## Tidying text data
+
+---
+
+## Tidying text data
 
 ---
 class: inverse, center, middle
