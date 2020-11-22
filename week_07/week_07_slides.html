@@ -3,7 +3,8 @@
   <head>
     <title>Going further with tidy data and {ggplot2}</title>
     <meta charset="utf-8" />
-    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/anchor-sections/anchor-sections.css" rel="stylesheet" />
+    <script src="libs/anchor-sections/anchor-sections.js"></script>
     <script src="libs/kePrint/kePrint.js"></script>
     <link href="libs/lightable/lightable.css" rel="stylesheet" />
     <link rel="stylesheet" href="xaringan-themer.css" type="text/css" />
@@ -171,11 +172,11 @@ background-size: cover
 
 ## Before we proceed...
 
-We will be using functions from these packages: `{dplyr}`, `{tidyr}`, `{janitor}`, `{stringr}`.
+If you want to code along as you work through the slides, open the .Rproj file from within the local folder for your course project repo.
 
 --
 
-If you want to code along as you work through the slides, you'll need to install these packages first.
+You'll also need to have installed these packages: `{dplyr}`, `{tidyr}`, `{janitor}`, `{stringr}`.
 
 --
 
@@ -405,12 +406,11 @@ If new work is saved over a raw data set, it becomes much harder to find and fix
 
 ## Renaming variables: In practice
 
-Let's rename `title` to `survey_title`, and `nickname` to `survey_nickname` so that both variables are clearer to the human reader.
+Let's rename `title` to `survey_title`, and `nickname` to `survey_nickname` so that both variables are clearer to the human reader. We can build on the code we've already started.
 
 --
 
-We can build on the code we've already started. After the `clean_names()` function, we add another `%&gt;%` pipe operator. This allows us to "add" the `rename()` function, from the `{dplyr}` package, into our data tidying pipeline:
-
+.pull-left[
 
 ```r
 audience_data %&gt;%
@@ -420,6 +420,13 @@ audience_data %&gt;%
 *   survey_nickname = nickname
     ) -&gt; audience_data_tidy
 ```
+]
+
+--
+
+.pull-right[
+After the `clean_names()` function, we add another `%&gt;%` pipe operator. This allows us to "add" the `rename()` function, from the `{dplyr}` package, into our data tidying pipeline.
+]
 
 --
 
@@ -5440,6 +5447,20 @@ Now is a good time to:
 ---
 
 ## Subsetting to selected variables: Concepts
+
+The Learning datamart contains a range of SQL views that help to streamline our data-to-analysis workflows. Often, these SQL views contain many columns - this is intentional and helps make each view useful for conducting multiple types of analyses.
+
+--
+
+When you are in the analysis stage, working with data in a tool like R, it can be helfpul to produce subsets of the data you have imported so that it is easier to navigate.
+
+--
+
+By producing data subsets that include only the information needed for a particular analysis, you can increase the performance speed of your code. A code chunk that takes a few seconds to run may not seem to be a slow process on its own, but when compiling long reports that contain many analytical steps, those seconds can add up quickly!
+
+--
+
+One way to produce data subsets is by reducing a data set down to only the variables you need.
 
 ---
 
