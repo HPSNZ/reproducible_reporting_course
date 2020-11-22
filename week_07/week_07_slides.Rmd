@@ -1207,25 +1207,64 @@ Now is a good time to:
 
 ---
 
+## Subsetting to selected variables: Context
+
+The Learning datamart contains a range of SQL objects (tables and views) that help to streamline our data-to-analysis workflows (e.g., `report.tagged_verbatims`). Often, these SQL objects contain many columns (variables).
+
+--
+
+This is by design, so that one object can be useful for many types of analyses. Consequently, these objects tend to contain more information than you need for any single analysis.
+
+--
+
+By producing data subsets that include only the necessary information for the task at hand, you can **increase the performance (speed) of your code**.
+
+--
+
+Some code that takes only a few seconds to run may not seem in need of a speed-up, but when repeatedly compiling long reports that contain many analytical steps, those seconds add up quickly!
+
+---
+
 ## Subsetting to selected variables: Concepts
 
-The Learning datamart contains a range of SQL views that help to streamline our data-to-analysis workflows. Often, these SQL views contain many columns - this is intentional and helps make each view useful for conducting multiple types of analyses.
-
+**Creating data subsets** is the process of retrieving a selected portion of data from a larger data set.
+<br />
+<br />
 --
 
-When you are in the analysis stage, working with data in a tool like R, it can be helfpul to produce subsets of the data you have imported so that it is easier to navigate.
+.pull-left[
+<center>
+```{r, out.width = "50%", echo = FALSE}
+
+knitr::include_graphics("images/1024px-Venn_A_subset_B.png")
+
+```
+<br />
+<small>Image credit: <a href="https://en.wikipedia.org/wiki/Subset#/media/File:Venn_A_subset_B.svg" target="_blank">Wikipedia</a></small>
+</center>
+]
+
+.pull-right[
+<br />
+<br />
+<br />
+This diagram illustrates the concept of subsets - A is a subset of B.
+]
 
 --
-
-By producing data subsets that include only the information needed for a particular analysis, you can increase the performance speed of your code. A code chunk that takes a few seconds to run may not seem to be a slow process on its own, but when compiling long reports that contain many analytical steps, those seconds can add up quickly!
-
---
-
-One way to produce data subsets is by reducing a data set down to only the variables you need.
+<br />
+<br />
+One way to subset data is to **select only the variables you need** from the source data, in order to carry out a particular analytical task.
 
 ---
 
 ## Subsetting to selected variables: In practice
+
+Consider that following analysis question:
+
+**Across Pre-HPAD intakes, how many days per week do athletes typically participate in a sport (their primary sport or other sports)?"**
+
+--
 
 Let's use the `days_per_week_data` we imported earlier. Here is the code to import the data again:
 
@@ -1253,36 +1292,97 @@ odbcClose(con)
 
 ## Subsetting to selected variables: In practice
 
-```{r}
+Use `names()` to list all the variables retrieved from the SQL object `report.vw_survey_p2p`.
+
+```{r, eval = FALSE}
 
 names(days_per_week_data)
 
 ```
 
+--
+
+```{r, echo = FALSE}
+
+names(days_per_week_data)
+
+```
+
+--
+
+Our analysis question is: **Across Pre-HPAD intakes, how many days per week do athletes typically participate in a sport (their primary sport or other sports)?"**
+
+From the list of variables above, which ones would you select in order to answer this question?
+
 ---
 
 ## Subsetting to selected variables: In practice
+
+**Across Pre-HPAD intakes, how many days per week do athletes typically participate in a sport (their primary sport or other sports)?"**
+
+To address the analysis question above, I would select:
+
+- `individual`: A [GUID](https://en.wikipedia.org/wiki/Universally_unique_identifier) assigned to each unique individual in the Learning datamart.
+
+--
+
+- `nickname`: A human-readable string that uniquely identifies each survey instance.
+
+--
+
+- `question_text`: Contains the question text tied to survey responses. Note: The SQL query includes `WHERE question_text LIKE '%Days per week in%'` - so the data set we've imported from the Learning datamart is already filtered to include only observations where the question text includes the string *"Days per week in"*.
+
+--
+
+- `response_text`: Contains all survey responses.
+
+---
+
+## Subsetting to selected variables: In practice
+
+We can use the `select()` function, from the `{dplyr}` package, to *select specific variables* that we want to keep in the subset.
 
 ```{r}
 
 days_per_week_data %>%
   select(
-    individual, nickname, sport_at_completion, question_text, response_text
-    ) -> days_per_week_data_subset
+    individual, nickname, question_text, response_text
+    ) -> days_per_week_across_intakes
 
 ```
 
 ```{r}
 
-names(days_per_week_data_subset)
+names(days_per_week_across_intakes)
 
 ```
 
 ```{r}
 
-head(days_per_week_data_subset)
+head(days_per_week_across_intakes)
 
 ```
+
+`select()` uses the order of variables listed to order variables in the subset from left to right.
+
+---
+
+## Subsetting to selected variables: In practice
+
+You can also use `select()` to omit specific variables.
+
+```{r}
+
+days_per_week_data %>%
+  select(
+    -title, -response
+    ) -> days_per_week_data_subset_2
+
+```
+
+--
+
+You might choose this approach if it's easier to create a subset by omitting a small number of variables, rather than specifying (typing out!) a large number of variables for inclusion.
 
 ---
 class: inverse, center, middle
